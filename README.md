@@ -85,7 +85,7 @@ php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
 - `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASS`, `MYSQL_DB`
 - `ALLOW_INSERT_OPERATION`, `ALLOW_UPDATE_OPERATION`, `ALLOW_DELETE_OPERATION`
 - `MAX_RESULTS`, `QUERY_TIMEOUT`, `LOG_LEVEL`
-- `CONNECTION_POOL_SIZE`, `CACHE_TTL`
+- `CONNECTION_POOL_SIZE`, `ENABLE_PREPARED_STATEMENTS`
 
 **Configuration Methods:**
 1. **Environment Variables** (via MCP config)

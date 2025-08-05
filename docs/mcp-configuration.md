@@ -146,16 +146,13 @@ Le **Model Context Protocol (MCP)** supporte plusieurs méthodes de communicatio
         
         // Sécurité (optionnelles)
         "BLOCK_DANGEROUS_KEYWORDS": "true",
-        "ENABLE_QUERY_LOGGING": "true",
         
         // Performance (optionnelles)
         "CONNECTION_POOL_SIZE": "5",
-        "CACHE_TTL": "300",
-        "ENABLE_QUERY_CACHE": "true",
+        "ENABLE_PREPARED_STATEMENTS": "true",
         
         // Debug (optionnelles)
-        "LOG_LEVEL": "INFO",
-        "LOG_FILE": ""
+        "LOG_LEVEL": "INFO"
     }
 }
 ```

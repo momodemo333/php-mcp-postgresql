@@ -173,19 +173,11 @@ class MySqlServer
             'MAX_RESULTS' => (int)(getenv('MAX_RESULTS') ?: ($_ENV['MAX_RESULTS'] ?? 1000)),
             'ALLOWED_SCHEMAS' => getenv('ALLOWED_SCHEMAS') ?: ($_ENV['ALLOWED_SCHEMAS'] ?? ''),
             'BLOCK_DANGEROUS_KEYWORDS' => getenv('BLOCK_DANGEROUS_KEYWORDS') ?: ($_ENV['BLOCK_DANGEROUS_KEYWORDS'] ?? 'true'),
-            'ENABLE_QUERY_LOGGING' => getenv('ENABLE_QUERY_LOGGING') ?: ($_ENV['ENABLE_QUERY_LOGGING'] ?? 'true'),
             
             'CONNECTION_POOL_SIZE' => (int)(getenv('CONNECTION_POOL_SIZE') ?: ($_ENV['CONNECTION_POOL_SIZE'] ?? 5)),
-            'CACHE_TTL' => (int)(getenv('CACHE_TTL') ?: ($_ENV['CACHE_TTL'] ?? 300)),
-            'ENABLE_QUERY_CACHE' => getenv('ENABLE_QUERY_CACHE') ?: ($_ENV['ENABLE_QUERY_CACHE'] ?? 'true'),
-            
-            'ENABLE_TRANSACTIONS' => getenv('ENABLE_TRANSACTIONS') ?: ($_ENV['ENABLE_TRANSACTIONS'] ?? 'true'),
             'ENABLE_PREPARED_STATEMENTS' => getenv('ENABLE_PREPARED_STATEMENTS') ?: ($_ENV['ENABLE_PREPARED_STATEMENTS'] ?? 'true'),
-            'ENABLE_SCHEMA_INTROSPECTION' => getenv('ENABLE_SCHEMA_INTROSPECTION') ?: ($_ENV['ENABLE_SCHEMA_INTROSPECTION'] ?? 'true'),
-            'ENABLE_EXPORT_TOOLS' => getenv('ENABLE_EXPORT_TOOLS') ?: ($_ENV['ENABLE_EXPORT_TOOLS'] ?? 'true'),
             
-            'LOG_LEVEL' => getenv('LOG_LEVEL') ?: ($_ENV['LOG_LEVEL'] ?? 'INFO'),
-            'LOG_FILE' => getenv('LOG_FILE') ?: ($_ENV['LOG_FILE'] ?? '')
+            'LOG_LEVEL' => getenv('LOG_LEVEL') ?: ($_ENV['LOG_LEVEL'] ?? 'INFO')
         ];
 
         // Applique les surcharges

@@ -458,7 +458,6 @@ echo -e "\n🎯 Diagnostic terminé !"
 ```bash
 # Dans .env
 LOG_LEVEL=DEBUG
-ENABLE_QUERY_LOGGING=true
 
 # Puis lancer
 php server.php 2>&1 | tee server.log
