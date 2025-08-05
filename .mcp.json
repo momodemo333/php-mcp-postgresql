@@ -1,0 +1,23 @@
+{
+    "mcpServers": {
+        "mysql-test": {
+            "type": "stdio",
+            "command": "php",
+            "args": [
+                "/home/morgan/project/customMcp/mysql/server.php"
+            ],
+            "env": {
+                "MYSQL_HOST": "127.0.0.1",
+                "MYSQL_PORT": "33099",
+                "MYSQL_USER": "mcpusertest",
+                "MYSQL_PASSWORD": "tototugoi",
+                "MYSQL_DB": "mcptesttable",
+                "ALLOW_INSERT_OPERATION": "true",
+                "ALLOW_UPDATE_OPERATION": "true",
+                "ALLOW_DELETE_OPERATION": "true",
+                "MAX_RESULTS": "500",
+                "LOG_LEVEL": "INFO"
+            }
+        }
+    }
+}
