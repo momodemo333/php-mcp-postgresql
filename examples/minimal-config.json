@@ -2,7 +2,7 @@
     "mcpServers": {
         "mysql": {
             "command": "php",
-            "args": ["/home/morgan/project/customMcp/mysql/bin/server.php"],
+            "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
             "env": {
                 "MYSQL_HOST": "127.0.0.1",
                 "MYSQL_PORT": "3306",

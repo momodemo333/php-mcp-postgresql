@@ -1,29 +1,35 @@
-# 🗄️ MySQL MCP Server
+# 🗄️ PHP MCP MySQL Server
 
 [![PHP](https://img.shields.io/badge/PHP->=8.1-blue.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-3.3-purple.svg)](https://github.com/php-mcp/server)
+[![Packagist](https://img.shields.io/packagist/v/momodemo333/php-mcp-mysql.svg)](https://packagist.org/packages/momodemo333/php-mcp-mysql)
+[![Downloads](https://img.shields.io/packagist/dt/momodemo333/php-mcp-mysql.svg)](https://packagist.org/packages/momodemo333/php-mcp-mysql)
 
-Serveur MCP (Model Context Protocol) pour MySQL, permettant à Claude Code d'interagir avec vos bases de données MySQL de manière sécurisée et configurable.
+MySQL MCP Server for Claude Code - Secure and configurable MySQL integration via Model Context Protocol.
 
-## 🚀 Installation Rapide
+## 🙏 Acknowledgments
 
-### Via Composer (Recommandé)
+This project is built on top of the excellent [php-mcp/server](https://github.com/php-mcp/server) library. Special thanks to the MCP community for providing the foundation that makes this integration possible.
+
+## 🚀 Quick Installation
+
+### Via Composer (Recommended)
 
 ```bash
-composer require morgan/mysql-mcp
+composer require momodemo333/php-mcp-mysql
 ```
 
-### Configuration Claude Code
+### Claude Code Configuration
 
-Ajoutez à votre `.cursor/mcp.json` :
+Add to your `.cursor/mcp.json`:
 
 ```json
 {
     "mcpServers": {
         "mysql": {
             "command": "php",
-            "args": ["vendor/morgan/mysql-mcp/bin/server.php"],
+            "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
             "env": {
                 "MYSQL_HOST": "127.0.0.1",
                 "MYSQL_PORT": "3306",
@@ -36,336 +42,292 @@ Ajoutez à votre `.cursor/mcp.json` :
 }
 ```
 
-### Test Rapide
+### Quick Test
 
 ```bash
-# Test de connexion
-php vendor/morgan/mysql-mcp/tests/test_connection.php
+# Test connection
+php vendor/momodemo333/php-mcp-mysql/tests/test_connection.php
 
-# Test du serveur MCP
-php vendor/morgan/mysql-mcp/tests/test_mcp_server.php
+# Test MCP server
+php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
 ```
 
-**🎉 C'est tout ! Votre serveur MySQL MCP est prêt !**
+**🎉 That's it! Your MySQL MCP Server is ready!**
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Features
 
-### 🛠️ Outils MCP Disponibles
+### 🛠️ Available MCP Tools
 
-- **`mysql_list_databases`** - Liste toutes les bases de données
-- **`mysql_list_tables`** - Liste les tables d'une base de données
-- **`mysql_describe_table`** - Décrit la structure d'une table
-- **`mysql_server_status`** - Statut et informations du serveur MySQL
-- **`mysql_select`** - Exécution de requêtes SELECT sécurisées
-- **`mysql_insert`** - Insertion de données avec validation
-- **`mysql_update`** - Mise à jour avec conditions obligatoires
-- **`mysql_delete`** - Suppression avec conditions obligatoires
-- **`mysql_execute_query`** - Exécution de requêtes SQL personnalisées
+- **`mysql_list_databases`** - List all databases
+- **`mysql_list_tables`** - List tables in a database
+- **`mysql_describe_table`** - Describe table structure (columns, indexes, foreign keys)
+- **`mysql_server_status`** - Get MySQL server status and health
+- **`mysql_select`** - Execute secure SELECT queries
+- **`mysql_insert`** - Insert data with validation
+- **`mysql_update`** - Update data with mandatory conditions
+- **`mysql_delete`** - Delete data with safety limits
+- **`mysql_execute_query`** - Execute custom SQL queries
 
-### 📊 Ressources MCP
+### 🔒 Security Features
 
-- **`mysql://connection/status`** - Statut de la connexion en temps réel
-- **`mysql://server/capabilities`** - Capacités et limitations du serveur
+- **SQL Injection Protection** - All queries use prepared statements
+- **Operation Permissions** - Granular control (INSERT, UPDATE, DELETE)
+- **Query Validation** - Dangerous keyword blocking
+- **Connection Pooling** - Efficient resource management
+- **Result Limiting** - Configurable result set limits
+- **Schema Restrictions** - Limit access to specific databases
 
-### 🔒 Fonctionnalités de Sécurité
+### ⚙️ Configuration Options
 
-- ✅ Validation des requêtes SQL
-- ✅ Protection contre l'injection SQL
-- ✅ Permissions granulaires par opération (INSERT, UPDATE, DELETE)
-- ✅ Limitation du nombre de résultats
-- ✅ Timeout des requêtes configurables
-- ✅ Filtrage des schémas autorisés
-- ✅ Blocage des mots-clés dangereux
-- ✅ Logging complet des opérations
+**Environment Variables:**
+- `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASS`, `MYSQL_DB`
+- `ALLOW_INSERT_OPERATION`, `ALLOW_UPDATE_OPERATION`, `ALLOW_DELETE_OPERATION`
+- `MAX_RESULTS`, `QUERY_TIMEOUT`, `LOG_LEVEL`
+- `CONNECTION_POOL_SIZE`, `CACHE_TTL`
 
-### ⚡ Performance
+**Configuration Methods:**
+1. **Environment Variables** (via MCP config)
+2. **`.env` Files** (per project)
+3. **CLI Arguments** (for testing)
 
-- 🔄 Pool de connexions MySQL
-- 📝 Logging intelligent avec niveaux configurables
-- 🚀 Requêtes préparées pour la sécurité et performance
-- 💾 Cache des connexions et métadonnées
+---
 
-## 📋 Prérequis
+## 📖 Documentation
 
-- **PHP** >= 8.1
-- **Extensions**: `pdo`, `pdo_mysql`
-- **MySQL/MariaDB** >= 5.7
-- **Composer** pour la gestion des dépendances
+### 📚 Complete Guides
 
-## 🚀 Installation
+- **[Quick Start](docs/quick-start.md)** - Get running in 5 minutes
+- **[Installation Guide](docs/installation.md)** - Detailed setup instructions
+- **[MCP Tools Reference](docs/mcp-tools.md)** - Complete tool documentation
+- **[Usage Examples](docs/examples.md)** - Practical examples
+- **[Multi-Project Setup](docs/multi-project-setup.md)** - Configure for multiple projects
+- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
 
-1. Cloner ou copier le répertoire `mysql/`
-2. Installer les dépendances :
-   ```bash
-   cd mysql/
-   composer install
-   ```
+### 🔧 Configuration Examples
 
-3. Configurer les variables d'environnement (voir section Configuration)
-
-## ⚙️ Configuration
-
-### Variables d'Environnement
-
-Copiez `.env.example` vers `.env` et ajustez les valeurs :
-
-```bash
-# === CONNEXION MYSQL ===
-MYSQL_HOST=127.0.0.1
-MYSQL_PORT=3306
-MYSQL_USER=your_user
-MYSQL_PASS=your_password
-MYSQL_DB=your_database              # Optionnel, laissez vide pour le mode multi-DB
-
-# === PERMISSIONS CRUD ===
-ALLOW_INSERT_OPERATION=false
-ALLOW_UPDATE_OPERATION=false
-ALLOW_DELETE_OPERATION=false
-ALLOW_TRUNCATE_OPERATION=false      # Extra protection
-
-# === SÉCURITÉ ===
-QUERY_TIMEOUT=30                    # Timeout en secondes
-MAX_RESULTS=1000                    # Limite de résultats par requête
-ALLOWED_SCHEMAS=                    # Schémas autorisés (vide = tous)
-BLOCK_DANGEROUS_KEYWORDS=true      # Bloquer DROP, TRUNCATE, etc.
-ENABLE_QUERY_LOGGING=true          # Log des requêtes
-
-# === PERFORMANCE ===
-CONNECTION_POOL_SIZE=5              # Taille du pool de connexions
-CACHE_TTL=300                       # TTL du cache (secondes)
-ENABLE_QUERY_CACHE=true            # Cache des requêtes
-
-# === FONCTIONNALITÉS ===
-ENABLE_TRANSACTIONS=true            # Support des transactions
-ENABLE_PREPARED_STATEMENTS=true    # Requêtes préparées
-ENABLE_SCHEMA_INTROSPECTION=true   # Inspection des structures
-ENABLE_EXPORT_TOOLS=true           # Outils d'export
-
-# === LOGGING ===
-LOG_LEVEL=INFO                      # DEBUG, INFO, WARN, ERROR
-LOG_FILE=                           # Fichier de log (vide = STDERR)
-```
-
-## 🎯 Utilisation
-
-### 1. Démarrage du Serveur
-
-```bash
-# Test de la configuration
-php test_mcp_server.php
-
-# Démarrage du serveur MCP (stdio)
-./server.php
-```
-
-### 2. Configuration Claude Code
-
-Ajoutez dans votre configuration MCP :
-
+**Simple Configuration:**
 ```json
 {
     "mcpServers": {
-        "mysql-server": {
+        "mysql": {
             "command": "php",
-            "args": ["/chemin/absolu/vers/mysql/server.php"]
+            "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
+            "env": {
+                "MYSQL_HOST": "127.0.0.1",
+                "MYSQL_USER": "myapp",
+                "MYSQL_PASS": "password",
+                "MYSQL_DB": "myapp_db"
+            }
         }
     }
 }
 ```
 
-### 3. Utilisation dans Claude Code
-
+**Multi-Environment Configuration:**
+```json
+{
+    "mcpServers": {
+        "mysql-dev": {
+            "command": "php",
+            "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
+            "env": {
+                "MYSQL_HOST": "127.0.0.1",
+                "MYSQL_USER": "dev_user",
+                "MYSQL_PASS": "dev_pass",
+                "MYSQL_DB": "myapp_dev",
+                "ALLOW_INSERT_OPERATION": "true",
+                "ALLOW_UPDATE_OPERATION": "true",
+                "ALLOW_DELETE_OPERATION": "true",
+                "LOG_LEVEL": "DEBUG"
+            }
+        },
+        "mysql-prod": {
+            "command": "php",
+            "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
+            "env": {
+                "MYSQL_HOST": "prod.example.com",
+                "MYSQL_USER": "readonly_user",
+                "MYSQL_PASS": "prod_pass",
+                "MYSQL_DB": "myapp_prod",
+                "ALLOW_INSERT_OPERATION": "false",
+                "ALLOW_UPDATE_OPERATION": "false",
+                "ALLOW_DELETE_OPERATION": "false",
+                "MAX_RESULTS": "50",
+                "LOG_LEVEL": "ERROR"
+            }
+        }
+    }
+}
 ```
-Peux-tu lister les bases de données disponibles ?
-→ Utilise mysql_list_databases
-
-Montre-moi la structure de la table users
-→ Utilise mysql_describe_table avec table="users"
-
-Récupère tous les utilisateurs de plus de 30 ans
-→ Utilise mysql_select avec query="SELECT * FROM users WHERE age > 30"
-```
-
-## 📊 Exemples d'Utilisation
-
-### Requêtes de Base
-
-```sql
--- Lister les tables
-mysql_list_tables
-
--- Décrire une table
-mysql_describe_table(table="users")
-
--- Sélectionner des données
-mysql_select(query="SELECT * FROM users WHERE age > 30")
-
--- Insérer des données (si ALLOW_INSERT_OPERATION=true)
-mysql_insert(table="users", data={"name": "John", "email": "john@example.com", "age": 35})
-
--- Mettre à jour (si ALLOW_UPDATE_OPERATION=true)
-mysql_update(table="users", data={"age": 36}, conditions={"id": 1})
-```
-
-### Requêtes Avancées
-
-```sql
--- Jointures et agrégations
-mysql_select(query="
-    SELECT u.name, COUNT(o.id) as order_count 
-    FROM users u 
-    LEFT JOIN orders o ON u.id = o.user_id 
-    GROUP BY u.id
-")
-
--- Requêtes avec paramètres (sécurisé)
-mysql_select(
-    query="SELECT * FROM orders WHERE user_id = ? AND status = ?",
-    params=[1, "completed"]
-)
-```
-
-## 🧪 Tests et Données d'Exemple
-
-### Création de Données de Test
-
-```bash
-# Crée des tables et données d'exemple
-php setup_test_data.php
-```
-
-Cela crée :
-- **users** (5 utilisateurs)
-- **orders** (9 commandes) 
-- **categories** (6 catégories avec hiérarchie)
-
-### Tables Créées
-
-- **`users`** : Utilisateurs avec nom, email, âge
-- **`orders`** : Commandes liées aux utilisateurs
-- **`categories`** : Catégories hiérarchiques
-
-## 🔒 Sécurité
-
-### Protections Intégrées
-
-1. **Validation des Requêtes** : Analyse syntaxique et sémantique
-2. **Injection SQL** : Protection via requêtes préparées et validation
-3. **Permissions** : Contrôle granulaire des opérations CRUD
-4. **Limits** : Timeout et limitation du nombre de résultats
-5. **Whitelist** : Restriction aux schémas autorisés
-6. **Mots-clés Dangereux** : Blocage de DROP, TRUNCATE, etc.
-7. **Audit** : Logging complet des opérations
-
-### Configuration de Production
-
-```bash
-# Production sécurisée
-ALLOW_INSERT_OPERATION=false
-ALLOW_UPDATE_OPERATION=false
-ALLOW_DELETE_OPERATION=false
-BLOCK_DANGEROUS_KEYWORDS=true
-MAX_RESULTS=100
-QUERY_TIMEOUT=10
-ALLOWED_SCHEMAS=your_app_db
-ENABLE_QUERY_LOGGING=true
-LOG_LEVEL=WARN
-```
-
-## 🚀 Intégration dans vos Projets
-
-### Structure Recommandée
-
-```
-your-project/
-├── mcp-servers/
-│   └── mysql/              # Ce serveur
-├── .cursor/
-│   └── mcp.json           # Configuration MCP
-└── your-app-files...
-```
-
-### Configuration par Projet
-
-Chaque projet peut avoir sa propre configuration MySQL :
-
-```bash
-# Projet A
-MYSQL_DB=project_a_db
-MYSQL_USER=project_a_user
-
-# Projet B  
-MYSQL_DB=project_b_db
-MYSQL_USER=project_b_user
-```
-
-## 📈 Monitoring et Logs
-
-### Niveaux de Log
-
-- **DEBUG** : Toutes les opérations détaillées
-- **INFO** : Opérations importantes et statistiques
-- **WARN** : Avertissements de sécurité et performance
-- **ERROR** : Erreurs et échecs de connexion
-
-### Métriques Disponibles
-
-- Nombre de connexions actives
-- Temps d'exécution des requêtes  
-- Statistiques d'utilisation par outil
-- Erreurs et tentatives de sécurité
-
-## 🛠️ Développement
-
-### Architecture
-
-```
-src/
-├── Elements/
-│   ├── DatabaseTools.php     # Outils de gestion BDD
-│   └── QueryTools.php        # Outils d'exécution requêtes
-├── Services/
-│   ├── ConnectionService.php # Pool de connexions
-│   └── SecurityService.php   # Validation et sécurité
-├── Exceptions/               # Exceptions spécifiques
-└── MySqlServer.php          # Configuration principale
-```
-
-### Tests
-
-```bash
-# Test de configuration
-php test_mcp_server.php
-
-# Test de connexion  
-php test_connection.php
-
-# Création de données de test
-php setup_test_data.php
-```
-
-## 🤝 Contribution
-
-1. Fork le projet
-2. Créer une branche pour votre fonctionnalité
-3. Commiter vos changements
-4. Créer une Pull Request
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
-
-## 🆘 Support
-
-Pour toute question ou problème :
-
-1. Vérifiez la configuration dans `.env`
-2. Testez la connexion avec `php test_connection.php`
-3. Consultez les logs pour les erreurs détaillées
-4. Ouvrez une issue avec les détails de votre configuration
 
 ---
 
-**🎉 Serveur MCP MySQL prêt à l'emploi !** Intégrez facilement MySQL dans vos workflows Claude Code.
+## 🛡️ Security & Best Practices
+
+### 🔐 Security Recommendations
+
+1. **Use Read-Only Users in Production**
+   ```sql
+   CREATE USER 'readonly_user'@'%' IDENTIFIED BY 'secure_password';
+   GRANT SELECT ON production_db.* TO 'readonly_user'@'%';
+   FLUSH PRIVILEGES;
+   ```
+
+2. **Limit Database Access**
+   ```bash
+   ALLOWED_SCHEMAS=myapp_prod,myapp_logs
+   ```
+
+3. **Set Result Limits**
+   ```bash
+   MAX_RESULTS=100
+   QUERY_TIMEOUT=10
+   ```
+
+4. **Use Environment Variables for Passwords**
+   ```bash
+   export MYSQL_PASS_PROD="$(security find-generic-password -s 'mysql-prod' -w)"
+   ```
+
+### ✅ Production Checklist
+
+- [ ] Use dedicated MySQL user with minimal permissions
+- [ ] Set `ALLOW_*_OPERATION=false` for production
+- [ ] Configure `MAX_RESULTS` and `QUERY_TIMEOUT`
+- [ ] Use `LOG_LEVEL=ERROR` in production
+- [ ] Restrict `ALLOWED_SCHEMAS` to necessary databases
+- [ ] Store passwords securely (environment variables)
+- [ ] Enable `BLOCK_DANGEROUS_KEYWORDS=true`
+
+---
+
+## 🧪 Development & Testing
+
+### Running Tests
+
+```bash
+# Copy environment template
+cp .env.example .env
+# Edit .env with your MySQL settings
+
+# Run connection test
+php tests/test_connection.php
+
+# Run full MCP server test
+php tests/test_mcp_server.php
+
+# Setup test data
+php scripts/setup_test_data.php
+```
+
+### Development Setup
+
+```bash
+# Clone repository
+git clone https://github.com/momodemo333/php-mcp-mysql.git
+cd php-mcp-mysql
+
+# Install dependencies
+composer install
+
+# Copy configuration
+cp .env.example .env
+# Edit .env with your settings
+
+# Run tests
+composer test
+```
+
+---
+
+## 📊 Usage with Claude Code
+
+### Natural Language Examples
+
+**Database Exploration:**
+```
+"Show me all tables in the database"
+"What's the structure of the users table?"
+"How many orders are in the database?"
+```
+
+**Data Analysis:**
+```
+"Find all users created in the last 30 days"
+"Show me the top 5 best-selling products"
+"What's the average order value by month?"
+```
+
+**Business Intelligence:**
+```
+"Analyze customer behavior patterns"
+"Show sales trends for the last quarter"
+"Find inactive users who haven't ordered in 6 months"
+```
+
+**Data Management:**
+```
+"Add a new user with email john@example.com"
+"Update the user's email address"
+"Clean up old temporary data"
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our contributing guidelines and:
+
+1. **Fork** the repository
+2. **Create** your feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** your changes: `git commit -m 'Add amazing feature'`
+4. **Push** to branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
+
+### Development Guidelines
+
+- Follow PSR-12 coding standards
+- Add tests for new features
+- Update documentation
+- Ensure security best practices
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+**MIT License Summary:**
+- ✅ Commercial use
+- ✅ Modification
+- ✅ Distribution
+- ✅ Private use
+- ❌ Liability
+- ❌ Warranty
+
+---
+
+## 🆘 Support
+
+- **📖 Documentation**: [docs/](docs/)
+- **🐛 Issues**: [GitHub Issues](https://github.com/momodemo333/php-mcp-mysql/issues)
+- **💡 Feature Requests**: [GitHub Discussions](https://github.com/momodemo333/php-mcp-mysql/discussions)
+
+---
+
+## 🎯 Roadmap
+
+- [ ] PostgreSQL support
+- [ ] Advanced query caching
+- [ ] Connection encryption (SSL/TLS)
+- [ ] Query performance analytics
+- [ ] Multi-database connection management
+- [ ] GraphQL-style query building
+
+---
+
+**Made with ❤️ for the Claude Code community**
+
+*Powered by [php-mcp/server](https://github.com/php-mcp/server)*

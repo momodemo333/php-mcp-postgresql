@@ -1,15 +1,18 @@
 {
-    "name": "morgan/mysql-mcp",
-    "description": "Serveur MCP MySQL réutilisable avec configuration par variables d'environnement pour Claude Code",
+    "name": "momodemo333/php-mcp-mysql",
+    "description": "MySQL MCP Server for Claude Code - Secure and configurable MySQL integration via Model Context Protocol",
     "type": "library",
-    "keywords": ["mcp", "mysql", "claude-code", "ai", "database"],
-    "homepage": "https://github.com/morgan/mysql-mcp",
+    "keywords": ["mcp", "mysql", "claude-code", "ai", "database", "model-context-protocol", "php-mcp"],
+    "homepage": "https://github.com/momodemo333/php-mcp-mysql",
     "license": "MIT",
+    "support": {
+        "issues": "https://github.com/momodemo333/php-mcp-mysql/issues",
+        "source": "https://github.com/momodemo333/php-mcp-mysql"
+    },
     "authors": [
         {
-            "name": "Morgan",
-            "email": "morgan@example.com",
-            "homepage": "https://github.com/morgan"
+            "name": "momodemo333",
+            "homepage": "https://github.com/momodemo333"
         }
     ],
     "require": {
@@ -49,9 +52,10 @@
         "test": "phpunit",
         "test:coverage": "phpunit --coverage-html coverage",
         "post-install-cmd": [
-            "@php -r \"echo '\\n🎉 MySQL MCP Server installé avec succès !\\n';\"",
-            "@php -r \"echo '📖 Documentation: https://github.com/morgan/mysql-mcp#readme\\n';\"",
-            "@php -r \"echo '🚀 Serveur: vendor/morgan/mysql-mcp/bin/server.php\\n\\n';\""
+            "@php -r \"echo '\\n🎉 PHP MCP MySQL Server installed successfully!\\n';\"",
+            "@php -r \"echo '📖 Documentation: https://github.com/momodemo333/php-mcp-mysql#readme\\n';\"",
+            "@php -r \"echo '🚀 Server: vendor/momodemo333/php-mcp-mysql/bin/server.php\\n';\"",
+            "@php -r \"echo '🙏 Thanks to php-mcp/server for the MCP framework\\n\\n';\""
         ]
     }
 }

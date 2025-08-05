@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
-        'name' => 'morgan/mysql-mcp',
+        'name' => 'momodemo333/php-mcp-mysql',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '82fa1175fa4b82fdd5948c4b0a82aa6900742c24',
+        'reference' => 'b8c10629f3012c026cbbe4da93223fcdddea40c7',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(
@@ -39,10 +39,10 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'morgan/mysql-mcp' => array(
+        'momodemo333/php-mcp-mysql' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '82fa1175fa4b82fdd5948c4b0a82aa6900742c24',
+            'reference' => 'b8c10629f3012c026cbbe4da93223fcdddea40c7',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(
