@@ -28,3 +28,9 @@ coverage/
 # Cache
 cache/
 temp/
+
+# MCP Configuration with credentials
+.mcp.json
+
+# Debug files
+debug_env.php

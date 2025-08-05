@@ -1,0 +1,23 @@
+{
+    "mcpServers": {
+        "mysql-server": {
+            "type": "stdio",
+            "command": "php",
+            "args": [
+                "/path/to/your/php-mcp-mysql/bin/server.php"
+            ],
+            "env": {
+                "MYSQL_HOST": "localhost",
+                "MYSQL_PORT": "3306",
+                "MYSQL_USER": "your_username",
+                "MYSQL_PASS": "your_password",
+                "MYSQL_DB": "your_database",
+                "ALLOW_INSERT_OPERATION": "false",
+                "ALLOW_UPDATE_OPERATION": "false",
+                "ALLOW_DELETE_OPERATION": "false",
+                "MAX_RESULTS": "1000",
+                "LOG_LEVEL": "INFO"
+            }
+        }
+    }
+}
