@@ -48,7 +48,7 @@ if (file_exists($envFile)) {
     
     // Test de connexion
     try {
-        require_once __DIR__ . '/vendor/autoload.php';
+        require_once __DIR__ . '/../vendor/autoload.php';
         
         $mysqlServer = new \MySqlMcp\MySqlServer();
         

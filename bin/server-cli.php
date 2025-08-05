@@ -8,7 +8,7 @@ declare(strict_types=1);
  * Usage: php server-cli.php --host=127.0.0.1 --port=3306 --user=root --pass=password --db=database
  */
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use MySqlMcp\MySqlServer;
 use PhpMcp\Server\Transports\StdioServerTransport;

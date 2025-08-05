@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 // Autoload des dépendances
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use MySqlMcp\MySqlServer;
 use PhpMcp\Server\Transports\StdioServerTransport;

@@ -1,0 +1,18 @@
+{
+    "mcpServers": {
+        "mysql": {
+            "command": "php",
+            "args": ["/home/morgan/project/customMcp/mysql/bin/server.php"],
+            "env": {
+                "MYSQL_HOST": "127.0.0.1",
+                "MYSQL_PORT": "3306",
+                "MYSQL_USER": "root",
+                "MYSQL_PASS": "password",
+                "MYSQL_DB": "myapp",
+                "ALLOW_INSERT_OPERATION": "true",
+                "ALLOW_UPDATE_OPERATION": "true",
+                "ALLOW_DELETE_OPERATION": "false"
+            }
+        }
+    }
+}

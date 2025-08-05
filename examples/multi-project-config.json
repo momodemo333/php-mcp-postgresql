@@ -1,0 +1,51 @@
+{
+    "mcpServers": {
+        "mysql-dev": {
+            "command": "php",
+            "args": ["/home/morgan/project/customMcp/mysql/bin/server.php"],
+            "env": {
+                "MYSQL_HOST": "127.0.0.1",
+                "MYSQL_PORT": "3306",
+                "MYSQL_USER": "dev_user",
+                "MYSQL_PASS": "dev_password",
+                "MYSQL_DB": "myapp_dev",
+                "ALLOW_INSERT_OPERATION": "true",
+                "ALLOW_UPDATE_OPERATION": "true",
+                "ALLOW_DELETE_OPERATION": "true",
+                "LOG_LEVEL": "DEBUG"
+            }
+        },
+        "mysql-staging": {
+            "command": "php",
+            "args": ["/home/morgan/project/customMcp/mysql/bin/server.php"],
+            "env": {
+                "MYSQL_HOST": "staging.example.com",
+                "MYSQL_PORT": "3306",
+                "MYSQL_USER": "staging_user",
+                "MYSQL_PASS": "staging_password",
+                "MYSQL_DB": "myapp_staging",
+                "ALLOW_INSERT_OPERATION": "false",
+                "ALLOW_UPDATE_OPERATION": "false",
+                "ALLOW_DELETE_OPERATION": "false",
+                "MAX_RESULTS": "100",
+                "LOG_LEVEL": "INFO"
+            }
+        },
+        "mysql-prod": {
+            "command": "php",
+            "args": ["/home/morgan/project/customMcp/mysql/bin/server.php"],
+            "env": {
+                "MYSQL_HOST": "prod.example.com",
+                "MYSQL_PORT": "3306",
+                "MYSQL_USER": "readonly_user",
+                "MYSQL_PASS": "readonly_password",
+                "MYSQL_DB": "myapp_prod",
+                "ALLOW_INSERT_OPERATION": "false",
+                "ALLOW_UPDATE_OPERATION": "false",
+                "ALLOW_DELETE_OPERATION": "false",
+                "MAX_RESULTS": "50",
+                "LOG_LEVEL": "ERROR"
+            }
+        }
+    }
+}
