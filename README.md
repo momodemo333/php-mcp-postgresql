@@ -1,6 +1,54 @@
-# 🗄️ Serveur MCP MySQL
+# 🗄️ MySQL MCP Server
 
-Un serveur MCP (Model Context Protocol) réutilisable pour interagir avec des bases de données MySQL. Conçu pour être intégré dans différents projets avec une configuration par variables d'environnement.
+[![PHP](https://img.shields.io/badge/PHP->=8.1-blue.svg)](https://php.net)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![MCP](https://img.shields.io/badge/MCP-3.3-purple.svg)](https://github.com/php-mcp/server)
+
+Serveur MCP (Model Context Protocol) pour MySQL, permettant à Claude Code d'interagir avec vos bases de données MySQL de manière sécurisée et configurable.
+
+## 🚀 Installation Rapide
+
+### Via Composer (Recommandé)
+
+```bash
+composer require morgan/mysql-mcp
+```
+
+### Configuration Claude Code
+
+Ajoutez à votre `.cursor/mcp.json` :
+
+```json
+{
+    "mcpServers": {
+        "mysql": {
+            "command": "php",
+            "args": ["vendor/morgan/mysql-mcp/bin/server.php"],
+            "env": {
+                "MYSQL_HOST": "127.0.0.1",
+                "MYSQL_PORT": "3306",
+                "MYSQL_USER": "your_user",
+                "MYSQL_PASS": "your_password",
+                "MYSQL_DB": "your_database"
+            }
+        }
+    }
+}
+```
+
+### Test Rapide
+
+```bash
+# Test de connexion
+php vendor/morgan/mysql-mcp/tests/test_connection.php
+
+# Test du serveur MCP
+php vendor/morgan/mysql-mcp/tests/test_mcp_server.php
+```
+
+**🎉 C'est tout ! Votre serveur MySQL MCP est prêt !**
+
+---
 
 ## ✨ Fonctionnalités
 

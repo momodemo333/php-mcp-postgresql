@@ -1,7 +1,17 @@
 {
-    "name": "custom-mcp/mysql-server",
-    "description": "Serveur MCP MySQL réutilisable avec configuration par variables d'environnement",
-    "type": "project",
+    "name": "morgan/mysql-mcp",
+    "description": "Serveur MCP MySQL réutilisable avec configuration par variables d'environnement pour Claude Code",
+    "type": "library",
+    "keywords": ["mcp", "mysql", "claude-code", "ai", "database"],
+    "homepage": "https://github.com/morgan/mysql-mcp",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Morgan",
+            "email": "morgan@example.com",
+            "homepage": "https://github.com/morgan"
+        }
+    ],
     "require": {
         "php": ">=8.1",
         "php-mcp/server": "^3.3",
@@ -25,8 +35,23 @@
         "optimize-autoloader": true,
         "sort-packages": true
     },
+    "bin": [
+        "bin/server.php",
+        "bin/server-cli.php",
+        "bin/server-wrapper.php"
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0.x-dev"
+        }
+    },
     "scripts": {
         "test": "phpunit",
-        "test:coverage": "phpunit --coverage-html coverage"
+        "test:coverage": "phpunit --coverage-html coverage",
+        "post-install-cmd": [
+            "@php -r \"echo '\\n🎉 MySQL MCP Server installé avec succès !\\n';\"",
+            "@php -r \"echo '📖 Documentation: https://github.com/morgan/mysql-mcp#readme\\n';\"",
+            "@php -r \"echo '🚀 Serveur: vendor/morgan/mysql-mcp/bin/server.php\\n\\n';\""
+        ]
     }
 }
