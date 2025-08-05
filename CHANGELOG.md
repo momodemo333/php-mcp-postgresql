@@ -10,6 +10,30 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Rien pour le moment
 
+## [1.0.1] - 2025-08-05
+
+### Fixed
+- 🧹 **Nettoyage des variables de configuration** : Suppression de 7 variables déclarées mais non implémentées
+- 📚 **Documentation cohérente** : Mise à jour de tous les exemples et guides pour correspondre aux fonctionnalités réelles
+- 🎯 **Expérience utilisateur améliorée** : Suppression des options confuses qui ne fonctionnaient pas
+
+### Removed
+- `ENABLE_QUERY_LOGGING` - Pas de système de logging des requêtes implémenté
+- `CACHE_TTL` - Pas de système de cache implémenté
+- `ENABLE_QUERY_CACHE` - Pas de fonctionnalité de cache de requêtes
+- `ENABLE_TRANSACTIONS` - Pas de gestion des transactions implémentée
+- `ENABLE_SCHEMA_INTROSPECTION` - Fonctionnalité non utilisée dans l'implémentation
+- `ENABLE_EXPORT_TOOLS` - Pas d'outils d'export implémentés
+- `LOG_FILE` - Le logging se fait uniquement vers stdout/stderr
+
+### Documentation
+- Mise à jour du template `.env.example`
+- Nettoyage du guide de configuration MCP
+- Correction de tous les exemples dans la documentation
+- Suppression des références aux fonctionnalités non implémentées
+
+**Note** : Aucun changement breaking, toutes les fonctionnalités existantes sont préservées.
+
 ## [1.0.0] - 2025-08-05
 
 ### Added
