@@ -4,13 +4,13 @@
             "type": "stdio",
             "command": "php",
             "args": [
-                "/home/morgan/project/customMcp/mysql/server.php"
+                "/home/morgan/project/customMcp/php-mcp-mysql/bin/server.php"
             ],
             "env": {
                 "MYSQL_HOST": "127.0.0.1",
                 "MYSQL_PORT": "33099",
                 "MYSQL_USER": "mcpusertest",
-                "MYSQL_PASSWORD": "tototugoi",
+                "MYSQL_PASS": "tototugoi",
                 "MYSQL_DB": "mcptesttable",
                 "ALLOW_INSERT_OPERATION": "true",
                 "ALLOW_UPDATE_OPERATION": "true",

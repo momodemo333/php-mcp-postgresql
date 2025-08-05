@@ -136,34 +136,34 @@ class MySqlServer
 
         // Configuration par défaut
         $config = [
-            'MYSQL_HOST' => $_ENV['MYSQL_HOST'] ?? 'localhost',
-            'MYSQL_PORT' => (int)($_ENV['MYSQL_PORT'] ?? 3306),
-            'MYSQL_USER' => $_ENV['MYSQL_USER'] ?? 'root',
-            'MYSQL_PASS' => $_ENV['MYSQL_PASS'] ?? '',
-            'MYSQL_DB' => $_ENV['MYSQL_DB'] ?? '',
+            'MYSQL_HOST' => getenv('MYSQL_HOST') ?: ($_ENV['MYSQL_HOST'] ?? 'localhost'),
+            'MYSQL_PORT' => (int)(getenv('MYSQL_PORT') ?: ($_ENV['MYSQL_PORT'] ?? 3306)),
+            'MYSQL_USER' => getenv('MYSQL_USER') ?: ($_ENV['MYSQL_USER'] ?? 'root'),
+            'MYSQL_PASS' => getenv('MYSQL_PASS') ?: ($_ENV['MYSQL_PASS'] ?? ''),
+            'MYSQL_DB' => getenv('MYSQL_DB') ?: ($_ENV['MYSQL_DB'] ?? ''),
             
-            'ALLOW_INSERT_OPERATION' => $_ENV['ALLOW_INSERT_OPERATION'] ?? 'false',
-            'ALLOW_UPDATE_OPERATION' => $_ENV['ALLOW_UPDATE_OPERATION'] ?? 'false',
-            'ALLOW_DELETE_OPERATION' => $_ENV['ALLOW_DELETE_OPERATION'] ?? 'false',
-            'ALLOW_TRUNCATE_OPERATION' => $_ENV['ALLOW_TRUNCATE_OPERATION'] ?? 'false',
+            'ALLOW_INSERT_OPERATION' => getenv('ALLOW_INSERT_OPERATION') ?: ($_ENV['ALLOW_INSERT_OPERATION'] ?? 'false'),
+            'ALLOW_UPDATE_OPERATION' => getenv('ALLOW_UPDATE_OPERATION') ?: ($_ENV['ALLOW_UPDATE_OPERATION'] ?? 'false'),
+            'ALLOW_DELETE_OPERATION' => getenv('ALLOW_DELETE_OPERATION') ?: ($_ENV['ALLOW_DELETE_OPERATION'] ?? 'false'),
+            'ALLOW_TRUNCATE_OPERATION' => getenv('ALLOW_TRUNCATE_OPERATION') ?: ($_ENV['ALLOW_TRUNCATE_OPERATION'] ?? 'false'),
             
-            'QUERY_TIMEOUT' => (int)($_ENV['QUERY_TIMEOUT'] ?? 30),
-            'MAX_RESULTS' => (int)($_ENV['MAX_RESULTS'] ?? 1000),
-            'ALLOWED_SCHEMAS' => $_ENV['ALLOWED_SCHEMAS'] ?? '',
-            'BLOCK_DANGEROUS_KEYWORDS' => $_ENV['BLOCK_DANGEROUS_KEYWORDS'] ?? 'true',
-            'ENABLE_QUERY_LOGGING' => $_ENV['ENABLE_QUERY_LOGGING'] ?? 'true',
+            'QUERY_TIMEOUT' => (int)(getenv('QUERY_TIMEOUT') ?: ($_ENV['QUERY_TIMEOUT'] ?? 30)),
+            'MAX_RESULTS' => (int)(getenv('MAX_RESULTS') ?: ($_ENV['MAX_RESULTS'] ?? 1000)),
+            'ALLOWED_SCHEMAS' => getenv('ALLOWED_SCHEMAS') ?: ($_ENV['ALLOWED_SCHEMAS'] ?? ''),
+            'BLOCK_DANGEROUS_KEYWORDS' => getenv('BLOCK_DANGEROUS_KEYWORDS') ?: ($_ENV['BLOCK_DANGEROUS_KEYWORDS'] ?? 'true'),
+            'ENABLE_QUERY_LOGGING' => getenv('ENABLE_QUERY_LOGGING') ?: ($_ENV['ENABLE_QUERY_LOGGING'] ?? 'true'),
             
-            'CONNECTION_POOL_SIZE' => (int)($_ENV['CONNECTION_POOL_SIZE'] ?? 5),
-            'CACHE_TTL' => (int)($_ENV['CACHE_TTL'] ?? 300),
-            'ENABLE_QUERY_CACHE' => $_ENV['ENABLE_QUERY_CACHE'] ?? 'true',
+            'CONNECTION_POOL_SIZE' => (int)(getenv('CONNECTION_POOL_SIZE') ?: ($_ENV['CONNECTION_POOL_SIZE'] ?? 5)),
+            'CACHE_TTL' => (int)(getenv('CACHE_TTL') ?: ($_ENV['CACHE_TTL'] ?? 300)),
+            'ENABLE_QUERY_CACHE' => getenv('ENABLE_QUERY_CACHE') ?: ($_ENV['ENABLE_QUERY_CACHE'] ?? 'true'),
             
-            'ENABLE_TRANSACTIONS' => $_ENV['ENABLE_TRANSACTIONS'] ?? 'true',
-            'ENABLE_PREPARED_STATEMENTS' => $_ENV['ENABLE_PREPARED_STATEMENTS'] ?? 'true',
-            'ENABLE_SCHEMA_INTROSPECTION' => $_ENV['ENABLE_SCHEMA_INTROSPECTION'] ?? 'true',
-            'ENABLE_EXPORT_TOOLS' => $_ENV['ENABLE_EXPORT_TOOLS'] ?? 'true',
+            'ENABLE_TRANSACTIONS' => getenv('ENABLE_TRANSACTIONS') ?: ($_ENV['ENABLE_TRANSACTIONS'] ?? 'true'),
+            'ENABLE_PREPARED_STATEMENTS' => getenv('ENABLE_PREPARED_STATEMENTS') ?: ($_ENV['ENABLE_PREPARED_STATEMENTS'] ?? 'true'),
+            'ENABLE_SCHEMA_INTROSPECTION' => getenv('ENABLE_SCHEMA_INTROSPECTION') ?: ($_ENV['ENABLE_SCHEMA_INTROSPECTION'] ?? 'true'),
+            'ENABLE_EXPORT_TOOLS' => getenv('ENABLE_EXPORT_TOOLS') ?: ($_ENV['ENABLE_EXPORT_TOOLS'] ?? 'true'),
             
-            'LOG_LEVEL' => $_ENV['LOG_LEVEL'] ?? 'INFO',
-            'LOG_FILE' => $_ENV['LOG_FILE'] ?? ''
+            'LOG_LEVEL' => getenv('LOG_LEVEL') ?: ($_ENV['LOG_LEVEL'] ?? 'INFO'),
+            'LOG_FILE' => getenv('LOG_FILE') ?: ($_ENV['LOG_FILE'] ?? '')
         ];
 
         // Applique les surcharges
