@@ -99,6 +99,7 @@ php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
 ### 📚 Complete Guides
 
 - **[Quick Start](docs/quick-start.md)** - Get running in 5 minutes
+- **[MCP Configuration](docs/mcp-configuration.md)** - Understanding MCP transports (`stdio`, `http`, `websocket`)
 - **[Installation Guide](docs/installation.md)** - Detailed setup instructions
 - **[MCP Tools Reference](docs/mcp-tools.md)** - Complete tool documentation
 - **[Usage Examples](docs/examples.md)** - Practical examples
@@ -112,6 +113,7 @@ php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
 {
     "mcpServers": {
         "mysql": {
+            "type": "stdio",
             "command": "php",
             "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
             "env": {
@@ -124,6 +126,8 @@ php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
     }
 }
 ```
+
+> **💡 MCP Transport Types**: The `"type": "stdio"` parameter specifies the communication method between your MCP client and the server. See **[MCP Configuration Guide](docs/mcp-configuration.md)** for complete details on `stdio`, `http`, and `websocket` transports.
 
 **Multi-Environment Configuration:**
 ```json

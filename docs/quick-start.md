@@ -88,19 +88,33 @@ php setup_test_data.php
 
 Créez ou éditez votre configuration MCP :
 
-**Fichier : `.cursor/mcp.json`** (ou équivalent)
+**Fichier : `.cursor/mcp.json`** (ou équivalent selon votre client MCP)
 ```json
 {
     "mcpServers": {
         "mysql": {
+            "type": "stdio",
             "command": "php",
-            "args": ["/chemin/absolu/vers/mysql/server.php"]
+            "args": ["/chemin/absolu/vers/mysql/server.php"],
+            "env": {
+                "MYSQL_HOST": "127.0.0.1",
+                "MYSQL_PORT": "3306",
+                "MYSQL_USER": "your_user",
+                "MYSQL_PASS": "your_password",
+                "MYSQL_DB": "your_database"
+            }
         }
     }
 }
 ```
 
-> **💡 Astuce** : Remplacez `/chemin/absolu/vers/mysql/server.php` par le chemin complet vers votre serveur.
+> **💡 Explication des paramètres MCP :**
+> - **`type: "stdio"`** : Transport MCP via stdin/stdout (standard pour les serveurs locaux)
+> - **`command`** : Commande pour lancer le serveur (ici PHP)
+> - **`args`** : Arguments passés à la commande (chemin vers le script)
+> - **`env`** : Variables d'environnement (credentials MySQL, permissions, etc.)
+
+> **🔧 Astuce** : Remplacez `/chemin/absolu/vers/mysql/server.php` par le chemin complet vers votre serveur.
 
 ### Étape 6 : Démarrage et Test (1 min)
 

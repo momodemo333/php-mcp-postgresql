@@ -1,6 +1,7 @@
 {
     "mcpServers": {
         "mysql": {
+            "type": "stdio",
             "command": "php",
             "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
             "env": {

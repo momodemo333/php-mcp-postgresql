@@ -1,6 +1,7 @@
 {
     "mcpServers": {
         "mysql-dev": {
+            "type": "stdio",
             "command": "php",
             "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
             "env": {
@@ -16,6 +17,7 @@
             }
         },
         "mysql-staging": {
+            "type": "stdio",
             "command": "php",
             "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
             "env": {
@@ -32,6 +34,7 @@
             }
         },
         "mysql-prod": {
+            "type": "stdio",
             "command": "php",
             "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
             "env": {
