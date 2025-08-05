@@ -11,6 +11,7 @@ use MySqlMcp\Elements\QueryTools;
 use PhpMcp\Server\Server;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Psr\Container\ContainerInterface;
 
 /**
  * Configuration principale du serveur MCP MySQL
@@ -35,26 +36,47 @@ class MySqlServer
         $connectionService = ConnectionService::getInstance($this->config, $this->logger);
         $securityService = new SecurityService($this->config, $this->logger);
 
-        // Création des éléments MCP
-        $databaseTools = new DatabaseTools($connectionService, $securityService, $this->logger);
-        $queryTools = new QueryTools($connectionService, $securityService, $this->logger, $this->config);
+        // Container DI simple pour les dépendances
+        $container = new class($connectionService, $securityService, $this->logger, $this->config) implements ContainerInterface {
+            public function __construct(
+                private ConnectionService $connectionService,
+                private SecurityService $securityService,
+                private LoggerInterface $logger,
+                private array $config
+            ) {}
+
+            public function get(string $id): mixed
+            {
+                return match ($id) {
+                    DatabaseTools::class => new DatabaseTools($this->connectionService, $this->securityService, $this->logger),
+                    QueryTools::class => new QueryTools($this->connectionService, $this->securityService, $this->logger, $this->config),
+                    default => throw new \InvalidArgumentException("Service '$id' not found")
+                };
+            }
+
+            public function has(string $id): bool
+            {
+                return in_array($id, [DatabaseTools::class, QueryTools::class]);
+            }
+        };
 
         // Configuration du serveur
         $server = Server::make()
             ->withServerInfo('MySQL MCP Server', '1.0.0')
             ->withLogger($this->logger)
+            ->withContainer($container)
             
             // Enregistrement manuel des outils (plus de contrôle)
-            ->withTool([$databaseTools, 'listDatabases'])
-            ->withTool([$databaseTools, 'listTables'])
-            ->withTool([$databaseTools, 'describeTable'])
-            ->withTool([$databaseTools, 'getServerStatus'])
+            ->withTool([DatabaseTools::class, 'listDatabases'])
+            ->withTool([DatabaseTools::class, 'listTables'])
+            ->withTool([DatabaseTools::class, 'describeTable'])
+            ->withTool([DatabaseTools::class, 'getServerStatus'])
             
-            ->withTool([$queryTools, 'executeSelect'])
-            ->withTool([$queryTools, 'executeInsert'])
-            ->withTool([$queryTools, 'executeUpdate'])
-            ->withTool([$queryTools, 'executeDelete'])
-            ->withTool([$queryTools, 'executeCustomQuery'])
+            ->withTool([QueryTools::class, 'executeSelect'])
+            ->withTool([QueryTools::class, 'executeInsert'])
+            ->withTool([QueryTools::class, 'executeUpdate'])
+            ->withTool([QueryTools::class, 'executeDelete'])
+            ->withTool([QueryTools::class, 'executeCustomQuery'])
             
             // Ressources MCP pour l'introspection
             ->withResource(
