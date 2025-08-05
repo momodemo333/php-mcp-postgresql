@@ -31,3 +31,6 @@ temp/
 
 # MCP Configuration with credentials
 .mcp.json
+
+# AI Assistant technical notes (not for public distribution)
+CLAUDE.md
