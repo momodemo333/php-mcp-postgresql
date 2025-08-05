@@ -8,6 +8,36 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- Rien pour le moment
+
+## [1.0.0] - 2025-08-05
+
+### Added
+- 🎉 **Release initiale stable** du serveur MySQL MCP
+- 🔧 **Serveur MCP complet** avec support de toutes les opérations MySQL (SELECT, INSERT, UPDATE, DELETE)
+- 🛡️ **Système de sécurité avancé** avec contrôles de permissions configurables
+- ⚙️ **Configuration par variables d'environnement** pour tous les paramètres
+- 📡 **Support multi-transport** MCP (stdio, http, websocket)
+- 🔄 **Connection pooling et cache** pour optimiser les performances
+- 📝 **Gestion d'erreurs et logging** complets et structurés
+- 📚 **Documentation exhaustive** avec guides d'installation et démarrage rapide
+- 🔧 **Guide de configuration MCP** pour tous les clients (Claude Code, Cursor, Zed)
+- 📖 **Exemples d'usage** et configuration multi-projets
+- 🚨 **Guide de dépannage** et bonnes pratiques
+- 🧪 **Utilitaires de test** pour connexion et validation de configuration
+- 📦 **Package Composer** prêt pour publication sur Packagist
+- ⚖️ **Licence MIT** pour usage commercial
+- 🛡️ **Sécurité renforcée** : pas de credentials dans le repository
+- 🎯 **Tests complets** : connexion, configuration MCP, serveur
+
+### Technical
+- Support PHP 8.1+
+- Intégration avec php-mcp/server v3.3
+- Architecture modulaire avec services et outils MCP
+- Validation des requêtes et sanitisation
+- Gestion des timeouts et limites de résultats
+- Dependency injection container
+- PSR-12 coding standards
 - Package Composer pour installation via `composer require morgan/mysql-mcp`
 - Scripts d'installation automatiques
 - Badges de documentation dans README
