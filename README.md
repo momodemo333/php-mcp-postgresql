@@ -101,7 +101,6 @@ php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
 - **[Quick Start](docs/quick-start.md)** - Get running in 5 minutes
 - **[MCP Configuration](docs/mcp-configuration.md)** - Understanding MCP transports (`stdio`, `http`, `websocket`)
 - **[Installation Guide](docs/installation.md)** - Detailed setup instructions
-- **[Versioning Guide](docs/versioning-guide.md)** - Release process and lessons learned
 - **[MCP Tools Reference](docs/mcp-tools.md)** - Complete tool documentation
 - **[Usage Examples](docs/examples.md)** - Practical examples
 - **[Multi-Project Setup](docs/multi-project-setup.md)** - Configure for multiple projects
