@@ -62,10 +62,7 @@ jobs:
       run: |
         mysql -h 127.0.0.1 -P 33306 -u root -ptestroot < tests/fixtures/test-data.sql
 
-    - name: Build Codeception
-      run: vendor/bin/codecept build
-
-    - name: Run tests
+    - name: Run PHPUnit tests
       env:
         MYSQL_HOST: 127.0.0.1
         MYSQL_PORT: 33306
@@ -83,25 +80,25 @@ jobs:
         LOG_LEVEL: ERROR
       run: |
         # Tests unitaires
-        vendor/bin/codecept run unit --coverage --coverage-xml
+        vendor/bin/phpunit --testsuite=Unit --coverage-clover=coverage-unit.xml
         
-        # Tests d'intégration
-        vendor/bin/codecept run integration --coverage --coverage-xml
+        # Tests d'intégration  
+        vendor/bin/phpunit --testsuite=Integration --coverage-clover=coverage-integration.xml
 
     - name: Upload coverage reports to Codecov
       if: matrix.php-version == '8.1'
       uses: codecov/codecov-action@v3
       with:
-        files: tests/_output/coverage.xml
+        files: coverage-unit.xml,coverage-integration.xml
         fail_ci_if_error: false
 
     - name: Generate coverage report
       if: matrix.php-version == '8.1'
-      run: vendor/bin/codecept run --coverage --coverage-html
+      run: vendor/bin/phpunit --coverage-html coverage/
 
     - name: Upload coverage artifacts
       if: matrix.php-version == '8.1'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report
         path: coverage/
@@ -145,17 +142,31 @@ jobs:
     - name: Install dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    - name: Build Codeception
-      run: vendor/bin/codecept build
-
     - name: Run Docker tests
       run: |
-        chmod +x tests/scripts/docker-test-complete.sh
-        ./tests/scripts/docker-test-complete.sh -v
+        # Create and start MySQL container for testing
+        docker run --name mysql-test -d \
+          -e MYSQL_ROOT_PASSWORD=testroot \
+          -e MYSQL_DATABASE=testdb \
+          -e MYSQL_USER=testuser \
+          -e MYSQL_PASSWORD=testpass \
+          -p 33307:3306 \
+          mysql:8.0
+        
+        # Wait for MySQL to be ready
+        sleep 30
+        
+        # Run PHPUnit tests with Docker MySQL
+        MYSQL_HOST=127.0.0.1 MYSQL_PORT=33307 MYSQL_USER=testuser MYSQL_PASS=testpass MYSQL_DB=testdb \
+        ALLOW_DDL_OPERATIONS=true ALLOW_ALL_OPERATIONS=false MAX_RESULTS=1000 QUERY_TIMEOUT=30 LOG_LEVEL=ERROR \
+        vendor/bin/phpunit
+        
+        # Cleanup
+        docker stop mysql-test && docker rm mysql-test
 
     - name: Upload test reports
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-reports
-        path: tests/reports/
+        path: coverage/
