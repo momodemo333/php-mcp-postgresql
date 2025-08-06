@@ -1,0 +1,16 @@
+# Codeception Integration Test Suite Configuration
+# Suite for integration tests with MySQL database
+
+actor: IntegrationTester
+modules:
+    enabled:
+        - Asserts
+        - Db:
+            dsn: 'mysql:host=127.0.0.1;port=33306;dbname=testdb'
+            user: 'testuser'
+            password: 'testpass'
+            dump: tests/fixtures/test-data.sql
+            cleanup: false
+            reconnect: true
+        - \MySqlMcp\Tests\Support\Helper\Integration
+step_decorators: ~

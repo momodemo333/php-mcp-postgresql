@@ -3,6 +3,7 @@
 [![PHP](https://img.shields.io/badge/PHP->=8.1-blue.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-3.3-purple.svg)](https://github.com/php-mcp/server)
+[![Tests](https://github.com/momodemo333/php-mcp-mysql/workflows/Tests/badge.svg)](https://github.com/momodemo333/php-mcp-mysql/actions)
 [![Packagist](https://img.shields.io/packagist/v/momodemo333/php-mcp-mysql.svg)](https://packagist.org/packages/momodemo333/php-mcp-mysql)
 [![Downloads](https://img.shields.io/packagist/dt/momodemo333/php-mcp-mysql.svg)](https://packagist.org/packages/momodemo333/php-mcp-mysql)
 
@@ -84,6 +85,8 @@ php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
 **Environment Variables:**
 - `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASS`, `MYSQL_DB`
 - `ALLOW_INSERT_OPERATION`, `ALLOW_UPDATE_OPERATION`, `ALLOW_DELETE_OPERATION`
+- `ALLOW_DDL_OPERATIONS` ⭐ - **New!** Authorize CREATE, ALTER, DROP operations
+- `ALLOW_ALL_OPERATIONS` ⭐ - **New!** Super admin mode (use with caution)
 - `MAX_RESULTS`, `QUERY_TIMEOUT`, `LOG_LEVEL`
 - `CONNECTION_POOL_SIZE`, `ENABLE_PREPARED_STATEMENTS`
 
@@ -195,10 +198,40 @@ php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
    export MYSQL_PASS_PROD="$(security find-generic-password -s 'mysql-prod' -w)"
    ```
 
+### 🔒 DDL Permissions (v1.1.0+)
+
+**Three-level permission system:**
+
+1. **Level 1 - CRUD Operations:**
+   ```bash
+   ALLOW_INSERT_OPERATION=true    # INSERT statements
+   ALLOW_UPDATE_OPERATION=true    # UPDATE statements  
+   ALLOW_DELETE_OPERATION=true    # DELETE statements
+   ALLOW_TRUNCATE_OPERATION=false # TRUNCATE statements
+   ```
+
+2. **Level 2 - Schema Operations (NEW!):**
+   ```bash
+   ALLOW_DDL_OPERATIONS=true      # CREATE, ALTER, DROP tables/indexes
+   ```
+
+3. **Level 3 - Super Admin (NEW!):**
+   ```bash
+   ALLOW_ALL_OPERATIONS=true      # All operations (use with extreme caution)
+   ```
+
+**Example - Enable schema modifications:**
+```bash
+# Fix "Mot-clé non autorisé détecté: ALTER" errors
+ALLOW_DDL_OPERATIONS=true
+```
+
 ### ✅ Production Checklist
 
 - [ ] Use dedicated MySQL user with minimal permissions
-- [ ] Set `ALLOW_*_OPERATION=false` for production
+- [ ] Set `ALLOW_*_OPERATION=false` for production (except SELECT)
+- [ ] **Carefully consider `ALLOW_DDL_OPERATIONS=false`** in production ⚠️
+- [ ] **Never use `ALLOW_ALL_OPERATIONS=true`** in production ❌
 - [ ] Configure `MAX_RESULTS` and `QUERY_TIMEOUT`
 - [ ] Use `LOG_LEVEL=ERROR` in production
 - [ ] Restrict `ALLOWED_SCHEMAS` to necessary databases
@@ -209,7 +242,35 @@ php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
 
 ## 🧪 Development & Testing
 
-### Running Tests
+### 🚀 New Test Suite (v1.1.0+)
+
+**Professional testing infrastructure with Docker:**
+
+```bash
+# Quick start - all tests with Docker MySQL
+make test
+
+# Development commands  
+make test-unit              # Fast unit tests (5s)
+make test-integration       # Integration tests with MySQL
+make test-coverage          # Generate HTML coverage report
+make clean                  # Clean Docker resources
+
+# Advanced testing
+./tests/scripts/docker-test-complete.sh -v -c    # Verbose + coverage
+```
+
+**Test Coverage:**
+- 🧪 **29+ tests** (unit + integration)
+- 🎯 **>90% coverage** of critical services  
+- 🐳 **Automated Docker** MySQL environment
+- 🔄 **CI/CD ready** with GitHub Actions
+
+**Documentation:**
+- 📖 [Complete Testing Guide](docs/TESTING.md)
+- 🚀 [Quick Testing README](tests/README.md)
+
+### Legacy Testing
 
 ```bash
 # Copy environment template

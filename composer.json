@@ -1,6 +1,6 @@
 {
     "name": "momodemo333/php-mcp-mysql",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "description": "MySQL MCP Server for Claude Code - Secure and configurable MySQL integration via Model Context Protocol",
     "type": "library",
     "keywords": ["mcp", "mysql", "claude-code", "ai", "database", "model-context-protocol", "php-mcp"],
@@ -23,7 +23,12 @@
         "ext-pdo_mysql": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "codeception/codeception": "^5.0",
+        "codeception/module-phpbrowser": "^3.0",
+        "codeception/module-asserts": "^3.0",
+        "codeception/module-db": "^3.0",
+        "symfony/process": "^6.0"
     },
     "autoload": {
         "psr-4": {
@@ -50,8 +55,14 @@
         }
     },
     "scripts": {
-        "test": "phpunit",
-        "test:coverage": "phpunit --coverage-html coverage",
+        "test": "vendor/bin/codecept run",
+        "test:unit": "vendor/bin/codecept run unit",
+        "test:integration": "vendor/bin/codecept run integration",
+        "test:functional": "vendor/bin/codecept run functional",
+        "test:coverage": "vendor/bin/codecept run --coverage --coverage-html coverage",
+        "test:docker": "@php tests/scripts/run-docker-tests.php",
+        "phpunit": "phpunit",
+        "phpunit:coverage": "phpunit --coverage-html coverage",
         "post-install-cmd": [
             "@php -r \"echo '\\n🎉 PHP MCP MySQL Server installed successfully!\\n';\"",
             "@php -r \"echo '📖 Documentation: https://github.com/momodemo333/php-mcp-mysql#readme\\n';\"",

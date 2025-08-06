@@ -16,11 +16,15 @@ class SecurityService
     private array $config;
     private LoggerInterface $logger;
     
-    // Mots-clés dangereux bloqués par défaut
+    // Mots-clés DDL (Schema) - contrôlés par ALLOW_DDL_OPERATIONS
+    private array $ddlKeywords = [
+        'CREATE', 'ALTER', 'DROP'
+    ];
+
+    // Mots-clés vraiment dangereux - contrôlés par ALLOW_ALL_OPERATIONS uniquement
     private array $dangerousKeywords = [
-        'DROP', 'TRUNCATE', 'DELETE', 'ALTER', 'CREATE', 'GRANT', 'REVOKE',
-        'LOAD_FILE', 'INTO OUTFILE', 'INTO DUMPFILE', 'SYSTEM', 'EXEC',
-        'SHUTDOWN', 'FLUSH', 'RESET', 'KILL', 'SET PASSWORD'
+        'GRANT', 'REVOKE', 'LOAD_FILE', 'INTO OUTFILE', 'INTO DUMPFILE', 
+        'SYSTEM', 'EXEC', 'SHUTDOWN', 'FLUSH', 'RESET', 'KILL', 'SET PASSWORD'
     ];
 
     public function __construct(array $config, LoggerInterface $logger = null)
@@ -43,10 +47,8 @@ class SecurityService
         // Vérification des permissions par opération
         $this->checkOperationPermission($operation);
         
-        // Vérification des mots-clés dangereux
-        if ($this->getBoolConfig('BLOCK_DANGEROUS_KEYWORDS', true)) {
-            $this->checkDangerousKeywords($query);
-        }
+        // Vérification des mots-clés selon les permissions configurées
+        $this->checkKeywordPermissions($query);
         
         // Vérification des schémas autorisés
         $this->checkAllowedSchemas($query);
@@ -66,6 +68,11 @@ class SecurityService
      */
     private function checkOperationPermission(string $operation): void
     {
+        // Mode super admin : tout est autorisé
+        if ($this->getBoolConfig('ALLOW_ALL_OPERATIONS', false)) {
+            return;
+        }
+
         $permissions = [
             'INSERT' => 'ALLOW_INSERT_OPERATION',
             'UPDATE' => 'ALLOW_UPDATE_OPERATION', 
@@ -81,19 +88,41 @@ class SecurityService
     }
 
     /**
-     * Vérifie la présence de mots-clés dangereux
+     * Vérifie les permissions des mots-clés selon la configuration
      */
-    private function checkDangerousKeywords(string $query): void
+    private function checkKeywordPermissions(string $query): void
     {
         $upperQuery = strtoupper($query);
         
-        foreach ($this->dangerousKeywords as $keyword) {
-            if (strpos($upperQuery, $keyword) !== false) {
-                $this->logger->warning('Mot-clé dangereux détecté', [
-                    'keyword' => $keyword,
-                    'query' => substr($query, 0, 200)
-                ]);
-                throw new SecurityException("Mot-clé non autorisé détecté: {$keyword}");
+        // Mode super admin : tout est autorisé
+        if ($this->getBoolConfig('ALLOW_ALL_OPERATIONS', false)) {
+            $this->logger->info('Mode super admin actif - toutes les opérations autorisées');
+            return;
+        }
+        
+        // Vérification des mots-clés DDL
+        if (!$this->getBoolConfig('ALLOW_DDL_OPERATIONS', false)) {
+            foreach ($this->ddlKeywords as $keyword) {
+                if (strpos($upperQuery, $keyword) !== false) {
+                    $this->logger->warning('Mot-clé DDL détecté sans permission', [
+                        'keyword' => $keyword,
+                        'query' => substr($query, 0, 200)
+                    ]);
+                    throw new SecurityException("Mot-clé non autorisé détecté: {$keyword}");
+                }
+            }
+        }
+        
+        // Vérification des mots-clés vraiment dangereux (toujours bloqués sauf si ALLOW_ALL_OPERATIONS=true)
+        if ($this->getBoolConfig('BLOCK_DANGEROUS_KEYWORDS', true)) {
+            foreach ($this->dangerousKeywords as $keyword) {
+                if (strpos($upperQuery, $keyword) !== false) {
+                    $this->logger->warning('Mot-clé dangereux détecté', [
+                        'keyword' => $keyword,
+                        'query' => substr($query, 0, 200)
+                    ]);
+                    throw new SecurityException("Mot-clé non autorisé détecté: {$keyword}");
+                }
             }
         }
     }

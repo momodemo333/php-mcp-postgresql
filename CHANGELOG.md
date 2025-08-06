@@ -10,6 +10,52 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Rien pour le moment
 
+## [1.1.0] - 2025-01-08
+
+### Added
+- 🔒 **Nouvelles permissions DDL** : Contrôle granulaire des opérations de schéma
+  - `ALLOW_DDL_OPERATIONS=true/false` : Autorise CREATE, ALTER, DROP tables/indexes
+  - `ALLOW_ALL_OPERATIONS=true/false` : Mode super admin autorisant toutes les opérations
+  - Résout les erreurs "Mot-clé non autorisé détecté: ALTER" pour la gestion de schéma
+- 🧪 **Suite de test complète** : Infrastructure de test professionnelle
+  - **Codeception + PHPUnit** : 29+ tests unitaires et d'intégration
+  - **Docker MySQL automatisé** : Environnement de test isolé avec fixtures
+  - **GitHub Actions CI/CD** : Tests automatiques sur PHP 8.1, 8.2, 8.3
+  - **Makefile** : 20+ commandes pour développeurs (`make test`, `make test-coverage`)
+  - **Couverture >90%** : Services critiques entièrement testés
+- 📚 **Documentation étendue** : Guides complets pour développeurs
+  - [docs/TESTING.md](docs/TESTING.md) : Architecture et stratégie de test
+  - [tests/README.md](tests/README.md) : Guide de démarrage rapide
+
+### Enhanced  
+- ⚡ **Sécurité renforcée** : Système de permissions à 3 niveaux
+  - **Niveau 1** : CRUD (INSERT, UPDATE, DELETE, TRUNCATE)
+  - **Niveau 2** : DDL (CREATE, ALTER, DROP) - nouveau !
+  - **Niveau 3** : Super admin (GRANT, SYSTEM, etc.)
+- 🛡️ **Validation améliorée** : Parsing booléen robuste pour configuration
+  - Support 'true', '1', 'yes', 'on' et équivalents négatifs
+  - Tests de toutes les combinaisons de permissions
+- 🔧 **Outils de développement** : Scripts d'automatisation et debug
+  - `tests/scripts/docker-test-complete.sh` : Runner de test complet
+  - `tests/scripts/run-docker-tests.php` : Alternative PHP
+  - Nettoyage automatique des ressources Docker
+
+### Technical
+- **Breaking change mineur** : Nouveau système de permissions (backward compatible)
+- **PHP 8.1+ requis** : Tests sur versions 8.1, 8.2, 8.3
+- **Dependencies** : Ajout Codeception, Symfony Process pour tests
+- **CI/CD** : Pipeline GitHub Actions pour qualité continue
+
+### Migration Notes
+Pour activer les nouvelles permissions DDL dans votre configuration :
+```bash
+# Autorise CREATE, ALTER, DROP
+ALLOW_DDL_OPERATIONS=true
+
+# Mode super admin (utiliser avec précaution)  
+ALLOW_ALL_OPERATIONS=true
+```
+
 ## [1.0.2] - 2025-08-06
 
 ### Added
