@@ -4,11 +4,11 @@ Documentation complète de tous les outils MCP disponibles dans le serveur MySQL
 
 ## 📋 Vue d'Ensemble
 
-Le serveur MCP MySQL propose **9 outils** organisés en 4 catégories :
+Le serveur MCP MySQL propose **10 outils** organisés en 4 catégories :
 
 | Catégorie | Outils | Description |
 |-----------|--------|-------------|
-| **🗄️ Base de Données** | 4 outils | Gestion et exploration |
+| **🗄️ Base de Données** | 5 outils | Gestion et exploration |
 | **📊 Requêtes Lecture** | 1 outil | Exécution SELECT sécurisée |
 | **✏️ Requêtes Écriture** | 3 outils | INSERT, UPDATE, DELETE |
 | **🔧 Avancé** | 1 outil | Requêtes SQL personnalisées |
@@ -39,14 +39,60 @@ Peux-tu me montrer toutes les bases de données disponibles ?
 
 ---
 
-### `mysql_list_tables`
+### `mysql_list_table_names`
 
-Liste toutes les tables d'une base de données spécifiée.
+Liste uniquement les noms des tables (ultra-économe en tokens pour grandes bases).
 
 **📥 Paramètres :**
 - `database` (string, optionnel) : Nom de la base de données
+- `limit` (integer, optionnel) : Limite de tables (défaut: 100, max: 1000)
 
 **📤 Retour :**
+```json
+{
+    "database": "app_db",
+    "table_names": ["users", "orders", "products", "logs"],
+    "count": 4,
+    "total_count": 4,
+    "truncated": false
+}
+```
+
+**💡 Exemples d'usage avec Claude :**
+```
+Quels sont les noms des tables disponibles ?
+Liste-moi les 20 premières tables
+```
+
+---
+
+### `mysql_list_tables`
+
+Liste les tables avec informations détaillées ou simplifiées (optimisé pour éviter le dépassement de tokens).
+
+**📥 Paramètres :**
+- `database` (string, optionnel) : Nom de la base de données
+- `detailed` (boolean, optionnel) : Informations détaillées (défaut: false pour économiser tokens)
+- `limit` (integer, optionnel) : Limite de tables (défaut: 50, max: 500)
+
+**📤 Retour (mode simple - défaut) :**
+```json
+{
+    "database": "app_db",
+    "tables": [
+        {"name": "users"},
+        {"name": "orders"},
+        {"name": "products"}
+    ],
+    "table_count": 3,
+    "total_table_count": 3,
+    "detailed": false,
+    "limited_to": 50,
+    "truncated": false
+}
+```
+
+**📤 Retour (mode détaillé) :**
 ```json
 {
     "database": "app_db",
@@ -61,15 +107,25 @@ Liste toutes les tables d'une base de données spécifiée.
             "total_size": 98304
         }
     ],
-    "table_count": 5
+    "table_count": 1,
+    "total_table_count": 25,
+    "detailed": true,
+    "limited_to": 50,
+    "truncated": true
 }
 ```
 
 **💡 Exemples d'usage avec Claude :**
 ```
-Quelles tables sont disponibles ?
-Montre-moi les tables de la base "analytics_db"
+Quelles tables sont disponibles ? (mode simple par défaut)
+Montre-moi les tables avec tous les détails (mode détaillé)
+Liste les 10 premières tables de analytics_db
 ```
+
+**🚀 Performance :**
+- **Mode simple** : ~10x moins de tokens, idéal pour exploration
+- **Mode détaillé** : Informations complètes avec limite anti-dépassement
+- **Limite automatique** : Évite les erreurs de dépassement de tokens
 
 ---
 

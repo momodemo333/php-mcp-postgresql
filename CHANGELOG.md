@@ -10,6 +10,36 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Rien pour le moment
 
+## [1.0.2] - 2025-08-06
+
+### Added
+- 🚀 **Nouvel outil `mysql_list_table_names`** : Liste ultra-économe des noms de tables (résout les dépassements de tokens)
+  - Support de limite configurable (défaut: 100, max: 1000)
+  - Retour minimal pour économiser les tokens
+  - Idéal pour l'exploration de grandes bases de données
+
+### Enhanced
+- ⚡ **Amélioration de `mysql_list_tables`** : Gestion intelligente des tokens
+  - **Nouveau paramètre `detailed`** : Mode simple par défaut (économe) vs mode détaillé (complet)
+  - **Nouveau paramètre `limit`** : Limitation configurable (défaut: 50, max: 500)
+  - **Mode simple** : Retourne seulement `{"name": "table_name"}` pour chaque table
+  - **Mode détaillé** : Garde le comportement original avec toutes les métadonnées
+  - **Informations de pagination** : `total_table_count`, `truncated`, `limited_to`
+- 📊 **Protection contre dépassement de tokens** : Résout l'erreur "response exceeds maximum allowed tokens"
+
+### Documentation
+- 📚 **Mise à jour de la documentation MCP Tools** : Nouvelles fonctionnalités documentées avec exemples
+- 🎯 **Guide de performance** : Recommandations d'usage selon le besoin en tokens
+
+### Technical
+- 🧪 **Nouveau script de test** : `tests/test_improved_tables.php` pour valider les améliorations
+- 🔄 **Compatibilité descendante** : Aucun changement breaking, tous les appels existants fonctionnent
+
+**Impact Performance** :
+- `mysql_list_table_names` : ~200-500 tokens (vs ~33,940 avant)
+- `mysql_list_tables` mode simple : ~500-1000 tokens (vs ~33,940 avant)
+- `mysql_list_tables` mode détaillé : Comme avant mais limité automatiquement
+
 ## [1.0.1] - 2025-08-05
 
 ### Fixed

@@ -71,7 +71,13 @@ class DatabaseTools
     #[McpTool(name: 'mysql_list_tables')]
     public function listTables(
         #[Schema(type: 'string', description: 'Nom de la base de données (optionnel en mode multi-DB)')]
-        ?string $database = null
+        ?string $database = null,
+        
+        #[Schema(type: 'boolean', description: 'Récupérer les informations détaillées (défaut: false pour économiser les tokens)')]
+        bool $detailed = false,
+        
+        #[Schema(type: 'integer', description: 'Limite le nombre de tables retournées (défaut: 50)', minimum: 1, maximum: 500)]
+        int $limit = 50
     ): array {
         $pdo = $this->connectionService->getConnection();
         
@@ -84,23 +90,40 @@ class DatabaseTools
             }
             
             $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            $totalTableCount = count($tables);
             
-            // Récupère des infos additionnelles sur chaque table
+            // Applique la limite
+            if ($totalTableCount > $limit) {
+                $tables = array_slice($tables, 0, $limit);
+            }
+            
+            // Récupère des infos sur chaque table selon le mode
             $tableDetails = [];
             foreach ($tables as $table) {
-                $tableInfo = $this->getTableInfo($pdo, $table, $database);
+                if ($detailed) {
+                    $tableInfo = $this->getTableInfo($pdo, $table, $database);
+                } else {
+                    // Mode simple : juste le nom et quelques infos de base
+                    $tableInfo = $this->getTableInfoSimple($pdo, $table, $database);
+                }
                 $tableDetails[] = $tableInfo;
             }
             
             $this->logger->info('Tables listées', [
                 'database' => $database ?: 'current',
-                'table_count' => count($tables)
+                'table_count' => count($tableDetails),
+                'detailed' => $detailed,
+                'limited_to' => $limit
             ]);
             
             return [
                 'database' => $database,
                 'tables' => $tableDetails,
-                'table_count' => count($tables)
+                'table_count' => count($tableDetails),
+                'total_table_count' => $totalTableCount,
+                'detailed' => $detailed,
+                'limited_to' => $limit,
+                'truncated' => $totalTableCount > $limit
             ];
             
         } catch (\Exception $e) {
@@ -180,6 +203,60 @@ class DatabaseTools
                 'error' => $e->getMessage()
             ]);
             throw new MySqlMcpException('Impossible de décrire la table: ' . $e->getMessage());
+        } finally {
+            $this->connectionService->releaseConnection($pdo);
+        }
+    }
+
+    /**
+     * Liste uniquement les noms des tables (ultra-économe en tokens)
+     */
+    #[McpTool(name: 'mysql_list_table_names')]
+    public function listTableNames(
+        #[Schema(type: 'string', description: 'Nom de la base de données (optionnel en mode multi-DB)')]
+        ?string $database = null,
+        
+        #[Schema(type: 'integer', description: 'Limite le nombre de tables retournées (défaut: 100)', minimum: 1, maximum: 1000)]
+        int $limit = 100
+    ): array {
+        $pdo = $this->connectionService->getConnection();
+        
+        try {
+            if ($database) {
+                $stmt = $pdo->prepare('SHOW TABLES FROM `' . $database . '`');
+                $stmt->execute();
+            } else {
+                $stmt = $pdo->query('SHOW TABLES');
+            }
+            
+            $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            $totalCount = count($tables);
+            
+            // Applique la limite
+            if ($totalCount > $limit) {
+                $tables = array_slice($tables, 0, $limit);
+            }
+            
+            $this->logger->info('Noms de tables listés', [
+                'database' => $database ?: 'current',
+                'table_count' => count($tables),
+                'total_count' => $totalCount
+            ]);
+            
+            return [
+                'database' => $database,
+                'table_names' => $tables,
+                'count' => count($tables),
+                'total_count' => $totalCount,
+                'truncated' => $totalCount > $limit
+            ];
+            
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur lors du listage des noms de tables', [
+                'database' => $database,
+                'error' => $e->getMessage()
+            ]);
+            throw new MySqlMcpException('Impossible de lister les noms de tables: ' . $e->getMessage());
         } finally {
             $this->connectionService->releaseConnection($pdo);
         }
@@ -295,5 +372,16 @@ class DatabaseTools
         }
         
         return array_values($grouped);
+    }
+    
+    /**
+     * Obtient des informations basiques sur une table (mode économie de tokens)
+     */
+    private function getTableInfoSimple(\PDO $pdo, string $table, ?string $database): array
+    {
+        // Retourne seulement les informations essentielles pour économiser les tokens
+        return [
+            'name' => $table
+        ];
     }
 }
