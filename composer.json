@@ -1,6 +1,5 @@
 {
     "name": "momodemo333/php-mcp-mysql",
-    "version": "1.1.0",
     "description": "MySQL MCP Server for Claude Code - Secure and configurable MySQL integration via Model Context Protocol",
     "type": "library",
     "keywords": ["mcp", "mysql", "claude-code", "ai", "database", "model-context-protocol", "php-mcp"],
