@@ -148,64 +148,66 @@ class DatabaseTools
         #[Schema(type: 'string', description: 'Nom de la base de données (optionnel)')]
         ?string $database = null
     ): array {
-        $pdo = $this->connectionService->getConnection();
-        
-        try {
-            // Construction de la requête DESCRIBE
-            $query = $database ? "DESCRIBE `{$database}`.`{$table}`" : "DESCRIBE `{$table}`";
-            $stmt = $pdo->query($query);
-            $columns = $stmt->fetchAll();
+        return $this->connectionService->executeWithRetry(function() use ($table, $database) {
+            $pdo = $this->connectionService->getConnection();
             
-            // Récupère les index
-            $indexQuery = $database ? "SHOW INDEX FROM `{$database}`.`{$table}`" : "SHOW INDEX FROM `{$table}`";
-            $indexStmt = $pdo->query($indexQuery);
-            $indexes = $indexStmt->fetchAll();
-            
-            // Récupère les contraintes (foreign keys)
-            $constraintsQuery = "
-                SELECT 
-                    CONSTRAINT_NAME,
-                    COLUMN_NAME,
-                    REFERENCED_TABLE_SCHEMA,
-                    REFERENCED_TABLE_NAME,
-                    REFERENCED_COLUMN_NAME
-                FROM information_schema.KEY_COLUMN_USAGE 
-                WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) 
-                AND TABLE_NAME = ?
-                AND REFERENCED_TABLE_NAME IS NOT NULL
-            ";
-            
-            $constraintsStmt = $pdo->prepare($constraintsQuery);
-            $constraintsStmt->execute([$database, $table]);
-            $foreignKeys = $constraintsStmt->fetchAll();
-            
-            $this->logger->info('Structure de table décrite', [
-                'table' => $table,
-                'database' => $database,
-                'column_count' => count($columns),
-                'index_count' => count($indexes),
-                'foreign_key_count' => count($foreignKeys)
-            ]);
-            
-            return [
-                'table' => $table,
-                'database' => $database,
-                'columns' => $columns,
-                'indexes' => $this->groupIndexes($indexes),
-                'foreign_keys' => $foreignKeys,
-                'column_count' => count($columns)
-            ];
-            
-        } catch (\Exception $e) {
-            $this->logger->error('Erreur lors de la description de table', [
-                'table' => $table,
-                'database' => $database,
-                'error' => $e->getMessage()
-            ]);
-            throw new MySqlMcpException('Impossible de décrire la table: ' . $e->getMessage());
-        } finally {
-            $this->connectionService->releaseConnection($pdo);
-        }
+            try {
+                // Construction de la requête DESCRIBE
+                $query = $database ? "DESCRIBE `{$database}`.`{$table}`" : "DESCRIBE `{$table}`";
+                $stmt = $pdo->query($query);
+                $columns = $stmt->fetchAll();
+                
+                // Récupère les index
+                $indexQuery = $database ? "SHOW INDEX FROM `{$database}`.`{$table}`" : "SHOW INDEX FROM `{$table}`";
+                $indexStmt = $pdo->query($indexQuery);
+                $indexes = $indexStmt->fetchAll();
+                
+                // Récupère les contraintes (foreign keys)
+                $constraintsQuery = "
+                    SELECT 
+                        CONSTRAINT_NAME,
+                        COLUMN_NAME,
+                        REFERENCED_TABLE_SCHEMA,
+                        REFERENCED_TABLE_NAME,
+                        REFERENCED_COLUMN_NAME
+                    FROM information_schema.KEY_COLUMN_USAGE 
+                    WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) 
+                    AND TABLE_NAME = ?
+                    AND REFERENCED_TABLE_NAME IS NOT NULL
+                ";
+                
+                $constraintsStmt = $pdo->prepare($constraintsQuery);
+                $constraintsStmt->execute([$database, $table]);
+                $foreignKeys = $constraintsStmt->fetchAll();
+                
+                $this->logger->info('Structure de table décrite', [
+                    'table' => $table,
+                    'database' => $database,
+                    'column_count' => count($columns),
+                    'index_count' => count($indexes),
+                    'foreign_key_count' => count($foreignKeys)
+                ]);
+                
+                return [
+                    'table' => $table,
+                    'database' => $database,
+                    'columns' => $columns,
+                    'indexes' => $this->groupIndexes($indexes),
+                    'foreign_keys' => $foreignKeys,
+                    'column_count' => count($columns)
+                ];
+                
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la description de table', [
+                    'table' => $table,
+                    'database' => $database,
+                    'error' => $e->getMessage()
+                ]);
+                throw new MySqlMcpException('Impossible de décrire la table: ' . $e->getMessage());
+            } finally {
+                $this->connectionService->releaseConnection($pdo);
+            }
+        });
     }
 
     /**
@@ -268,35 +270,37 @@ class DatabaseTools
     #[McpTool(name: 'mysql_server_status')]
     public function getServerStatus(): array
     {
-        try {
-            $serverInfo = $this->connectionService->getServerInfo();
-            
-            $pdo = $this->connectionService->getConnection();
-            
-            // Récupère des statistiques supplémentaires
-            $statusStmt = $pdo->query("SHOW STATUS WHERE Variable_name IN ('Connections', 'Queries', 'Uptime', 'Threads_connected')");
-            $statusData = [];
-            while ($row = $statusStmt->fetch()) {
-                $statusData[$row['Variable_name']] = $row['Value'];
+        return $this->connectionService->executeWithRetry(function() {
+            try {
+                $serverInfo = $this->connectionService->getServerInfo();
+                
+                $pdo = $this->connectionService->getConnection();
+                
+                // Récupère des statistiques supplémentaires
+                $statusStmt = $pdo->query("SHOW STATUS WHERE Variable_name IN ('Connections', 'Queries', 'Uptime', 'Threads_connected')");
+                $statusData = [];
+                while ($row = $statusStmt->fetch()) {
+                    $statusData[$row['Variable_name']] = $row['Value'];
+                }
+                
+                $this->connectionService->releaseConnection($pdo);
+                
+                $result = array_merge($serverInfo, [
+                    'mysql_connections' => (int)($statusData['Connections'] ?? 0),
+                    'mysql_queries' => (int)($statusData['Queries'] ?? 0),
+                    'mysql_threads_connected' => (int)($statusData['Threads_connected'] ?? 0),
+                    'connection_test' => $this->connectionService->testConnection()
+                ]);
+                
+                $this->logger->info('Statut serveur récupéré', $result);
+                
+                return $result;
+                
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur récupération statut serveur', ['error' => $e->getMessage()]);
+                throw new MySqlMcpException('Impossible de récupérer le statut du serveur: ' . $e->getMessage());
             }
-            
-            $this->connectionService->releaseConnection($pdo);
-            
-            $result = array_merge($serverInfo, [
-                'mysql_connections' => (int)($statusData['Connections'] ?? 0),
-                'mysql_queries' => (int)($statusData['Queries'] ?? 0),
-                'mysql_threads_connected' => (int)($statusData['Threads_connected'] ?? 0),
-                'connection_test' => $this->connectionService->testConnection()
-            ]);
-            
-            $this->logger->info('Statut serveur récupéré', $result);
-            
-            return $result;
-            
-        } catch (\Exception $e) {
-            $this->logger->error('Erreur récupération statut serveur', ['error' => $e->getMessage()]);
-            throw new MySqlMcpException('Impossible de récupérer le statut du serveur: ' . $e->getMessage());
-        }
+        });
     }
 
     /**
@@ -379,6 +383,9 @@ class DatabaseTools
      */
     private function getTableInfoSimple(\PDO $pdo, string $table, ?string $database): array
     {
+        // Suppression des paramètres inutilisés pour éviter les warnings
+        unset($pdo, $database);
+        
         // Retourne seulement les informations essentielles pour économiser les tokens
         return [
             'name' => $table

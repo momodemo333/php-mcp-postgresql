@@ -45,10 +45,17 @@ class ConnectionService
         // Cherche une connexion libre existante
         foreach ($this->connections as $key => $connectionData) {
             if (!$connectionData['in_use']) {
-                $this->connections[$key]['in_use'] = true;
-                $this->connections[$key]['last_used'] = time();
-                $this->logger->debug('Réutilisation connexion existante', ['connection_id' => $key]);
-                return $connectionData['pdo'];
+                // Vérifie si la connexion est toujours valide
+                if ($this->isConnectionAlive($connectionData['pdo'])) {
+                    $this->connections[$key]['in_use'] = true;
+                    $this->connections[$key]['last_used'] = time();
+                    $this->logger->debug('Réutilisation connexion existante', ['connection_id' => $key]);
+                    return $connectionData['pdo'];
+                } else {
+                    // Supprime la connexion morte
+                    unset($this->connections[$key]);
+                    $this->logger->warning('Connexion morte supprimée du pool', ['connection_id' => $key]);
+                }
             }
         }
 
@@ -113,6 +120,9 @@ class ConnectionService
             \PDO::ATTR_EMULATE_PREPARES => false,
             \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
             \PDO::ATTR_TIMEOUT => (int)($this->config['QUERY_TIMEOUT'] ?? 30),
+            // Options pour éviter "MySQL server has gone away"
+            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => false,
+            \PDO::MYSQL_ATTR_FOUND_ROWS => true,
         ];
 
         try {
@@ -203,5 +213,55 @@ class ConnectionService
     {
         $this->connections = [];
         $this->logger->info('Toutes les connexions fermées');
+    }
+
+    /**
+     * Vérifie si une connexion PDO est toujours vivante
+     */
+    private function isConnectionAlive(\PDO $pdo): bool
+    {
+        try {
+            $stmt = $pdo->query('SELECT 1');
+            return $stmt !== false;
+        } catch (\PDOException $e) {
+            // MySQL server has gone away ou autres erreurs de connexion
+            if ($e->getCode() == 2006 || $e->getCode() == 2013) {
+                return false;
+            }
+            // Pour les autres erreurs, on considère que la connexion est vivante
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Exécute une requête avec retry automatique en cas de connexion fermée
+     */
+    public function executeWithRetry(callable $callback, int $maxRetries = 2): mixed
+    {
+        $attempt = 0;
+        
+        while ($attempt < $maxRetries) {
+            try {
+                return $callback();
+            } catch (\PDOException $e) {
+                // MySQL server has gone away
+                if (($e->getCode() == 2006 || $e->getCode() == 2013) && $attempt < $maxRetries - 1) {
+                    $this->logger->warning('Connexion MySQL fermée, tentative de reconnexion', [
+                        'attempt' => $attempt + 1,
+                        'error' => $e->getMessage()
+                    ]);
+                    
+                    // Nettoie les connexions mortes
+                    $this->cleanup();
+                    $attempt++;
+                    continue;
+                }
+                throw $e;
+            }
+        }
+        
+        throw new \RuntimeException('Échec après ' . $maxRetries . ' tentatives');
     }
 }
