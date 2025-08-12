@@ -120,9 +120,10 @@ class ConnectionService
             \PDO::ATTR_EMULATE_PREPARES => false,
             \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
             \PDO::ATTR_TIMEOUT => (int)($this->config['QUERY_TIMEOUT'] ?? 30),
-            // Options pour éviter "MySQL server has gone away"
-            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => false,
+            // Options optimisées pour éviter "MySQL server has gone away"
+            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,  // Plus sûr pour les connexions longues
             \PDO::MYSQL_ATTR_FOUND_ROWS => true,
+            \PDO::ATTR_PERSISTENT => false,  // Éviter les connexions persistantes qui peuvent causer des problèmes
         ];
 
         try {
@@ -202,6 +203,22 @@ class ConnectionService
             if (!$connectionData['in_use'] && ($now - $connectionData['last_used']) > $timeout) {
                 unset($this->connections[$key]);
                 $this->logger->info('Connexion inactive nettoyée', ['connection_id' => $key]);
+            }
+        }
+    }
+
+    /**
+     * Maintient le pool de connexions en vérifiant périodiquement les connexions inactives
+     * (heartbeat pour éviter les connexions zombies)
+     */
+    public function maintainPool(): void
+    {
+        foreach ($this->connections as $key => $connectionData) {
+            if (!$connectionData['in_use']) {
+                if (!$this->isConnectionAlive($connectionData['pdo'])) {
+                    unset($this->connections[$key]);
+                    $this->logger->debug('Connexion zombie supprimée lors de la maintenance', ['connection_id' => $key]);
+                }
             }
         }
     }
