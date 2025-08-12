@@ -9,13 +9,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use PostgreSqlMcp\Services\ConnectionService;
 
-// Configuration pour les tests
+// Configuration pour les tests (utilise les variables d'environnement ou les valeurs par défaut)
 $config = [
-    'PGSQL_HOST' => 'localhost',
-    'PGSQL_PORT' => 54320,  // Port du container Docker
-    'PGSQL_USER' => 'testuser',
-    'PGSQL_PASS' => 'testpass',
-    'PGSQL_DB' => 'testdb',
+    'PGSQL_HOST' => getenv('PGSQL_HOST') ?: 'localhost',
+    'PGSQL_PORT' => getenv('PGSQL_PORT') ?: 54320,  // Port du container Docker local
+    'PGSQL_USER' => getenv('PGSQL_USER') ?: 'testuser',
+    'PGSQL_PASS' => getenv('PGSQL_PASS') ?: 'testpass',
+    'PGSQL_DB' => getenv('PGSQL_DB') ?: 'testdb',
     'CONNECTION_POOL_SIZE' => 5,
     'QUERY_TIMEOUT' => 30,
 ];

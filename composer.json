@@ -1,6 +1,7 @@
 {
     "name": "momodemo333/php-mcp-postgresql",
     "description": "PostgreSQL MCP Server for Claude Code - Secure and configurable PostgreSQL integration via Model Context Protocol",
+    "version": "1.0.0-beta",
     "type": "library",
     "keywords": ["mcp", "postgresql", "postgres", "pgsql", "claude-code", "ai", "database", "model-context-protocol", "php-mcp"],
     "homepage": "https://github.com/momodemo333/php-mcp-postgresql",
@@ -51,13 +52,10 @@
         }
     },
     "scripts": {
-        "test": "phpunit",
-        "test:unit": "phpunit --testsuite=Unit",
-        "test:integration": "phpunit --testsuite=Integration",
-        "test:coverage": "phpunit --coverage-html coverage",
-        "test:docker": "@php tests/scripts/run-docker-tests.php",
-        "phpunit": "phpunit",
-        "phpunit:coverage": "phpunit --coverage-html coverage",
+        "test": "@php tests/test_connection.php && @php tests/test_mcp_server.php",
+        "test:connection": "@php tests/test_connection.php",
+        "test:mcp": "@php tests/test_mcp_server.php",
+        "test:docker": "./tests/run-tests.sh",
         "post-install-cmd": [
             "@php -r \"echo '\\n🎉 PHP MCP PostgreSQL Server installed successfully!\\n';\"",
             "@php -r \"echo '📖 Documentation: https://github.com/momodemo333/php-mcp-postgresql#readme\\n';\"",

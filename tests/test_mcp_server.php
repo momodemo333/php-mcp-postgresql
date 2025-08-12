@@ -31,16 +31,16 @@ class TestLogger implements LoggerInterface
     }
 }
 
-// Configuration pour les tests
+// Configuration pour les tests (utilise les variables d'environnement ou les valeurs par défaut)
 $config = [
-    'PGSQL_HOST' => 'localhost',
-    'PGSQL_PORT' => 54320,
-    'PGSQL_USER' => 'testuser',
-    'PGSQL_PASS' => 'testpass',
-    'PGSQL_DB' => 'testdb',
-    'ALLOW_INSERT_OPERATION' => 'true',
-    'ALLOW_UPDATE_OPERATION' => 'true',
-    'ALLOW_DELETE_OPERATION' => 'true',
+    'PGSQL_HOST' => getenv('PGSQL_HOST') ?: 'localhost',
+    'PGSQL_PORT' => getenv('PGSQL_PORT') ?: 54320,
+    'PGSQL_USER' => getenv('PGSQL_USER') ?: 'testuser',
+    'PGSQL_PASS' => getenv('PGSQL_PASS') ?: 'testpass',
+    'PGSQL_DB' => getenv('PGSQL_DB') ?: 'testdb',
+    'ALLOW_INSERT_OPERATION' => getenv('ALLOW_INSERT_OPERATION') ?: 'true',
+    'ALLOW_UPDATE_OPERATION' => getenv('ALLOW_UPDATE_OPERATION') ?: 'true',
+    'ALLOW_DELETE_OPERATION' => getenv('ALLOW_DELETE_OPERATION') ?: 'true',
     'QUERY_TIMEOUT' => 30,
     'MAX_RESULTS' => 1000,
     'CONNECTION_POOL_SIZE' => 5,
