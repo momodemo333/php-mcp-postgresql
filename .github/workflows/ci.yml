@@ -18,8 +18,6 @@ jobs:
         php-version: ['8.1', '8.3']
         postgres-version: ['15']
         include:
-          - php-version: '8.1'
-            postgres-version: '14'
           - php-version: '8.3'
             postgres-version: '13'
     
