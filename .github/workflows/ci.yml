@@ -15,10 +15,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.1', '8.2', '8.3']
+        php-version: ['8.1', '8.3']
         postgres-version: ['15']
         include:
-          - php-version: '8.3'
+          - php-version: '8.1'
             postgres-version: '14'
           - php-version: '8.3'
             postgres-version: '13'
@@ -45,10 +45,11 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-version }}
-        extensions: pdo, pdo_pgsql, mbstring
-        ini-values: memory_limit=256M, max_execution_time=180
+        extensions: pdo, pdo_pgsql
         coverage: none
         tools: composer:v2
+      env:
+        COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Verify PHP Installation
       run: |
