@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "postgresql": {
+      "command": "php",
+      "args": ["/absolute/path/to/php-mcp-postgresql/bin/server.php"],
+      "type": "stdio",
+      "env": {
+        "PGSQL_HOST": "localhost",
+        "PGSQL_PORT": "5432",
+        "PGSQL_USER": "your_username",
+        "PGSQL_PASS": "your_password",
+        "PGSQL_DB": "your_database",
+        "ALLOW_INSERT_OPERATION": "false",
+        "ALLOW_UPDATE_OPERATION": "false",
+        "ALLOW_DELETE_OPERATION": "false",
+        "QUERY_TIMEOUT": "30",
+        "MAX_RESULTS": "1000",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}

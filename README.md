@@ -7,392 +7,221 @@
 
 PostgreSQL MCP Server for Claude Code - Secure and configurable PostgreSQL integration via Model Context Protocol.
 
-> ⚠️ **Work in Progress**: This project is being migrated from MySQL to PostgreSQL. See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for progress.
+> 🎉 **Version 1.0.0-beta**: Core functionality complete! Production testing in progress.
 
-## 🙏 Acknowledgments
+## 🚀 Features
 
-This project is built on top of the excellent [php-mcp/server](https://github.com/php-mcp/server) library. Special thanks to the MCP community for providing the foundation that makes this integration possible.
+- 🔒 **Secure by Default** - Read-only operations by default, write operations require explicit permission
+- 🎯 **PostgreSQL Native** - Full support for JSONB, arrays, CTEs, window functions, and more
+- ⚡ **High Performance** - Connection pooling, prepared statements, query timeouts
+- 📊 **Schema Introspection** - Explore databases, tables, columns, indexes
+- 🔧 **Flexible Configuration** - Environment variables, .env files, multi-database support
+- 🛡️ **Built-in Protection** - SQL injection prevention, dangerous keyword blocking, result limits
 
-## 🚀 Quick Installation
+## 📦 Requirements
 
-### Via Composer (Recommended)
+- PHP 8.1 or higher
+- PostgreSQL 12 or higher  
+- Composer
+- PHP extensions: `ext-pdo`, `ext-pdo_pgsql`
+
+## 🔧 Installation
+
+### 1. Clone the Repository
 
 ```bash
-composer require momodemo333/php-mcp-mysql
+git clone https://github.com/momodemo333/php-mcp-postgresql.git
+cd php-mcp-postgresql
 ```
+
+### 2. Install Dependencies
+
+```bash
+composer install
+```
+
+### 3. Configure Environment
+
+```bash
+cp .env.example .env
+# Edit .env with your PostgreSQL credentials
+```
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|  
+| `PGSQL_HOST` | PostgreSQL server host | localhost |
+| `PGSQL_PORT` | PostgreSQL server port | 5432 |
+| `PGSQL_USER` | Database username | postgres |
+| `PGSQL_PASS` | Database password | (empty) |
+| `PGSQL_DB` | Database name (optional for multi-db) | (empty) |
+| `ALLOW_INSERT_OPERATION` | Enable INSERT queries | false |
+| `ALLOW_UPDATE_OPERATION` | Enable UPDATE queries | false |
+| `ALLOW_DELETE_OPERATION` | Enable DELETE queries | false |
+| `QUERY_TIMEOUT` | Query timeout in seconds | 30 |
+| `MAX_RESULTS` | Maximum rows returned | 1000 |
+| `CONNECTION_POOL_SIZE` | Max concurrent connections | 5 |
+| `LOG_LEVEL` | Logging level (DEBUG/INFO/WARN/ERROR) | INFO |
 
 ### Claude Code Configuration
 
-Add to your `.cursor/mcp.json`:
+Add to your Claude Code settings (`claude-code-settings.json`):
 
 ```json
 {
-    "mcpServers": {
-        "mysql": {
-            "command": "php",
-            "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
-            "env": {
-                "MYSQL_HOST": "127.0.0.1",
-                "MYSQL_PORT": "3306",
-                "MYSQL_USER": "your_user",
-                "MYSQL_PASS": "your_password",
-                "MYSQL_DB": "your_database"
-            }
-        }
+  "mcpServers": {
+    "postgresql": {
+      "command": "php",
+      "args": ["/absolute/path/to/php-mcp-postgresql/bin/server.php"],
+      "type": "stdio",
+      "env": {
+        "PGSQL_HOST": "localhost",
+        "PGSQL_PORT": "5432",
+        "PGSQL_USER": "your_user",
+        "PGSQL_PASS": "your_password",
+        "PGSQL_DB": "your_database"
+      }
     }
+  }
 }
 ```
+
+See [examples/](examples/) for more configuration examples.
+
+## 🛠️ Available Tools
+
+### Database Management
+
+- **`pgsql_list_databases`** - List all available databases
+- **`pgsql_list_tables`** - List tables in a database
+- **`pgsql_describe_table`** - Get detailed table structure
+- **`pgsql_server_status`** - Get server status and statistics
+
+### Query Execution
+
+- **`pgsql_select`** - Execute SELECT queries safely
+- **`pgsql_insert`** - Insert data (requires permission)
+- **`pgsql_update`** - Update data (requires permission)  
+- **`pgsql_delete`** - Delete data (requires permission)
+- **`pgsql_execute_query`** - Execute custom queries (with validation)
+
+## 🧪 Testing
 
 ### Quick Test
 
 ```bash
-# Test connection
-php vendor/momodemo333/php-mcp-mysql/tests/test_connection.php
+# Start test PostgreSQL database
+./tests/start-test-db.sh
 
-# Test MCP server
-php vendor/momodemo333/php-mcp-mysql/tests/test_mcp_server.php
+# Run all tests
+./tests/run-tests.sh
+
+# Stop test database
+./tests/stop-test-db.sh
 ```
 
-**🎉 That's it! Your MySQL MCP Server is ready!**
+### Docker Test Environment
 
----
-
-## ✨ Features
-
-### 🛠️ Available MCP Tools
-
-- **`mysql_list_databases`** - List all databases
-- **`mysql_list_tables`** - List tables in a database
-- **`mysql_describe_table`** - Describe table structure (columns, indexes, foreign keys)
-- **`mysql_server_status`** - Get MySQL server status and health
-- **`mysql_select`** - Execute secure SELECT queries
-- **`mysql_insert`** - Insert data with validation
-- **`mysql_update`** - Update data with mandatory conditions
-- **`mysql_delete`** - Delete data with safety limits
-- **`mysql_execute_query`** - Execute custom SQL queries
-
-### 🔒 Security Features
-
-- **SQL Injection Protection** - All queries use prepared statements
-- **Operation Permissions** - Granular control (INSERT, UPDATE, DELETE)
-- **Query Validation** - Dangerous keyword blocking
-- **Connection Pooling** - Efficient resource management
-- **Result Limiting** - Configurable result set limits
-- **Schema Restrictions** - Limit access to specific databases
-
-### ⚙️ Configuration Options
-
-**Environment Variables:**
-- `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASS`, `MYSQL_DB`
-- `ALLOW_INSERT_OPERATION`, `ALLOW_UPDATE_OPERATION`, `ALLOW_DELETE_OPERATION`
-- `ALLOW_DDL_OPERATIONS` ⭐ - **New!** Authorize CREATE, ALTER, DROP operations
-- `ALLOW_ALL_OPERATIONS` ⭐ - **New!** Super admin mode (use with caution)
-- `MAX_RESULTS`, `QUERY_TIMEOUT`, `LOG_LEVEL`
-- `CONNECTION_POOL_SIZE`, `ENABLE_PREPARED_STATEMENTS`
-
-**Configuration Methods:**
-1. **Environment Variables** (via MCP config)
-2. **`.env` Files** (per project)
-3. **CLI Arguments** (for testing)
-
----
-
-## 📖 Documentation
-
-### 📚 Complete Guides
-
-- **[Quick Start](docs/quick-start.md)** - Get running in 5 minutes
-- **[MCP Configuration](docs/mcp-configuration.md)** - Understanding MCP transports (`stdio`, `http`, `websocket`)
-- **[Installation Guide](docs/installation.md)** - Detailed setup instructions
-- **[MCP Tools Reference](docs/mcp-tools.md)** - Complete tool documentation
-- **[Usage Examples](docs/examples.md)** - Practical examples
-- **[Multi-Project Setup](docs/multi-project-setup.md)** - Configure for multiple projects
-- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
-
-### 🔧 Configuration Examples
-
-**Simple Configuration:**
-```json
-{
-    "mcpServers": {
-        "mysql": {
-            "type": "stdio",
-            "command": "php",
-            "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
-            "env": {
-                "MYSQL_HOST": "127.0.0.1",
-                "MYSQL_USER": "myapp",
-                "MYSQL_PASS": "password",
-                "MYSQL_DB": "myapp_db"
-            }
-        }
-    }
-}
-```
-
-> **💡 MCP Transport Types**: The `"type": "stdio"` parameter specifies the communication method between your MCP client and the server. See **[MCP Configuration Guide](docs/mcp-configuration.md)** for complete details on `stdio`, `http`, and `websocket` transports.
-
-**Multi-Environment Configuration:**
-```json
-{
-    "mcpServers": {
-        "mysql-dev": {
-            "command": "php",
-            "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
-            "env": {
-                "MYSQL_HOST": "127.0.0.1",
-                "MYSQL_USER": "dev_user",
-                "MYSQL_PASS": "dev_pass",
-                "MYSQL_DB": "myapp_dev",
-                "ALLOW_INSERT_OPERATION": "true",
-                "ALLOW_UPDATE_OPERATION": "true",
-                "ALLOW_DELETE_OPERATION": "true",
-                "LOG_LEVEL": "DEBUG"
-            }
-        },
-        "mysql-prod": {
-            "command": "php",
-            "args": ["vendor/momodemo333/php-mcp-mysql/bin/server.php"],
-            "env": {
-                "MYSQL_HOST": "prod.example.com",
-                "MYSQL_USER": "readonly_user",
-                "MYSQL_PASS": "prod_pass",
-                "MYSQL_DB": "myapp_prod",
-                "ALLOW_INSERT_OPERATION": "false",
-                "ALLOW_UPDATE_OPERATION": "false",
-                "ALLOW_DELETE_OPERATION": "false",
-                "MAX_RESULTS": "50",
-                "LOG_LEVEL": "ERROR"
-            }
-        }
-    }
-}
-```
-
----
-
-## 🛡️ Security & Best Practices
-
-### 🔐 Security Recommendations
-
-1. **Use Read-Only Users in Production**
-   ```sql
-   CREATE USER 'readonly_user'@'%' IDENTIFIED BY 'secure_password';
-   GRANT SELECT ON production_db.* TO 'readonly_user'@'%';
-   FLUSH PRIVILEGES;
-   ```
-
-2. **Limit Database Access**
-   ```bash
-   ALLOWED_SCHEMAS=myapp_prod,myapp_logs
-   ```
-
-3. **Set Result Limits**
-   ```bash
-   MAX_RESULTS=100
-   QUERY_TIMEOUT=10
-   ```
-
-4. **Use Environment Variables for Passwords**
-   ```bash
-   export MYSQL_PASS_PROD="$(security find-generic-password -s 'mysql-prod' -w)"
-   ```
-
-### 🔒 DDL Permissions (v1.1.0+)
-
-**Three-level permission system:**
-
-1. **Level 1 - CRUD Operations:**
-   ```bash
-   ALLOW_INSERT_OPERATION=true    # INSERT statements
-   ALLOW_UPDATE_OPERATION=true    # UPDATE statements  
-   ALLOW_DELETE_OPERATION=true    # DELETE statements
-   ALLOW_TRUNCATE_OPERATION=false # TRUNCATE statements
-   ```
-
-2. **Level 2 - Schema Operations (NEW!):**
-   ```bash
-   ALLOW_DDL_OPERATIONS=true      # CREATE, ALTER, DROP tables/indexes
-   ```
-
-3. **Level 3 - Super Admin (NEW!):**
-   ```bash
-   ALLOW_ALL_OPERATIONS=true      # All operations (use with extreme caution)
-   ```
-
-**Example - Enable schema modifications:**
-```bash
-# Fix "Mot-clé non autorisé détecté: ALTER" errors
-ALLOW_DDL_OPERATIONS=true
-```
-
-### ✅ Production Checklist
-
-- [ ] Use dedicated MySQL user with minimal permissions
-- [ ] Set `ALLOW_*_OPERATION=false` for production (except SELECT)
-- [ ] **Carefully consider `ALLOW_DDL_OPERATIONS=false`** in production ⚠️
-- [ ] **Never use `ALLOW_ALL_OPERATIONS=true`** in production ❌
-- [ ] Configure `MAX_RESULTS` and `QUERY_TIMEOUT`
-- [ ] Use `LOG_LEVEL=ERROR` in production
-- [ ] Restrict `ALLOWED_SCHEMAS` to necessary databases
-- [ ] Store passwords securely (environment variables)
-- [ ] Enable `BLOCK_DANGEROUS_KEYWORDS=true`
-
----
-
-## 🧪 Development & Testing
-
-### 🚀 New Test Suite (v1.1.0+)
-
-**Professional testing infrastructure with Docker:**
+The project includes a complete Docker test environment:
 
 ```bash
-# Quick start - all tests with Docker MySQL
-make test
-
-# Development commands  
-make test-unit              # Fast unit tests (5s)
-make test-integration       # Integration tests with MySQL
-make test-coverage          # Generate HTML coverage report
-make clean                  # Clean Docker resources
-
-# Advanced testing
-./tests/scripts/docker-test-complete.sh -v -c    # Verbose + coverage
-```
-
-**Test Coverage:**
-- 🧪 **29+ tests** (unit + integration)
-- 🎯 **>90% coverage** of critical services  
-- 🐳 **Automated Docker** MySQL environment
-- 🔄 **CI/CD ready** with GitHub Actions
-
-**Documentation:**
-- 📖 [Complete Testing Guide](docs/TESTING.md)
-- 🚀 [Quick Testing README](tests/README.md)
-
-### Legacy Testing
-
-```bash
-# Copy environment template
-cp .env.example .env
-# Edit .env with your MySQL settings
-
-# Run connection test
-php tests/test_connection.php
-
-# Run full MCP server test
-php tests/test_mcp_server.php
-
-# Setup test data
-php scripts/setup_test_data.php
-```
-
-### Development Setup
-
-```bash
-# Clone repository
-git clone https://github.com/momodemo333/php-mcp-mysql.git
-cd php-mcp-mysql
-
-# Install dependencies
-composer install
-
-# Copy configuration
-cp .env.example .env
-# Edit .env with your settings
+# Start PostgreSQL container with test data
+docker-compose -f docker-compose.test.yml up -d
 
 # Run tests
-composer test
+php tests/test_connection.php
+php tests/test_mcp_server.php
+
+# Stop containers
+docker-compose -f docker-compose.test.yml down
 ```
 
----
+## 🔒 Security
 
-## 📊 Usage with Claude Code
+### Default Security Features
 
-### Natural Language Examples
+- **Read-only by default** - All write operations disabled unless explicitly enabled
+- **Prepared statements** - Prevents SQL injection attacks
+- **Query validation** - Blocks dangerous keywords and operations
+- **Result limits** - Prevents memory exhaustion from large result sets
+- **Connection timeouts** - Prevents hanging queries
+- **Schema restrictions** - Limit access to specific schemas
 
-**Database Exploration:**
-```
-"Show me all tables in the database"
-"What's the structure of the users table?"
-"How many orders are in the database?"
-```
+### Best Practices
 
-**Data Analysis:**
-```
-"Find all users created in the last 30 days"
-"Show me the top 5 best-selling products"
-"What's the average order value by month?"
-```
+1. Never enable write operations in production unless absolutely necessary
+2. Use read-only database users when possible
+3. Set appropriate `MAX_RESULTS` and `QUERY_TIMEOUT` values
+4. Review logs regularly for suspicious activity
+5. Keep the server updated with security patches
 
-**Business Intelligence:**
-```
-"Analyze customer behavior patterns"
-"Show sales trends for the last quarter"
-"Find inactive users who haven't ordered in 6 months"
-```
+## 🎆 PostgreSQL-Specific Features
 
-**Data Management:**
-```
-"Add a new user with email john@example.com"
-"Update the user's email address"
-"Clean up old temporary data"
+### JSONB Support
+
+```sql
+-- Query JSONB fields
+SELECT * FROM users WHERE metadata->>'role' = 'admin';
+SELECT * FROM products WHERE specifications @> '{"cpu": "Intel i7"}';
 ```
 
----
+### Array Support
+
+```sql
+-- Query array fields
+SELECT * FROM products WHERE 'electronics' = ANY(tags);
+SELECT * FROM products WHERE tags && ARRAY['computers', 'portable'];
+```
+
+### Advanced Features
+
+- Common Table Expressions (CTEs)
+- Window functions
+- RETURNING clause on INSERT/UPDATE/DELETE
+- Materialized views
+- Full-text search
+- Custom types and domains
+
+## 📝 Documentation
+
+- [Installation Guide](docs/installation.md)
+- [Configuration Reference](docs/mcp-configuration.md)
+- [MCP Tools Documentation](docs/mcp-tools.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Migration Plan](MIGRATION_PLAN.md)
+- [Implementation Status](IMPLEMENTATION_STATUS.md)
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our contributing guidelines and:
+Contributions are welcome! Please:
 
-1. **Fork** the repository
-2. **Create** your feature branch: `git checkout -b feature/amazing-feature`
-3. **Commit** your changes: `git commit -m 'Add amazing feature'`
-4. **Push** to branch: `git push origin feature/amazing-feature`
-5. **Open** a Pull Request
-
-### Development Guidelines
-
-- Follow PSR-12 coding standards
-- Add tests for new features
-- Update documentation
-- Ensure security best practices
-
----
+1. Fork the repository
+2. Create a feature branch
+3. Write tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
-**MIT License Summary:**
-- ✅ Commercial use
-- ✅ Modification
-- ✅ Distribution
-- ✅ Private use
-- ❌ Liability
-- ❌ Warranty
+## 🙏 Acknowledgments
 
----
+- Built with [php-mcp/server](https://github.com/php-mcp/server) framework
+- Based on [php-mcp-mysql](https://github.com/momodemo333/php-mcp-mysql) architecture  
+- Thanks to the MCP community for the protocol specification
 
-## 🆘 Support
+## 💬 Support
 
-- **📖 Documentation**: [docs/](docs/)
-- **🐛 Issues**: [GitHub Issues](https://github.com/momodemo333/php-mcp-mysql/issues)
-- **💡 Feature Requests**: [GitHub Discussions](https://github.com/momodemo333/php-mcp-mysql/discussions)
+- **Issues**: [GitHub Issues](https://github.com/momodemo333/php-mcp-postgresql/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/momodemo333/php-mcp-postgresql/discussions)
 
 ---
 
-## 🎯 Roadmap
+**Version**: 1.0.0-beta  
+**Status**: Production Testing  
+**Last Updated**: January 2025
 
-- [ ] PostgreSQL support
-- [ ] Advanced query caching
-- [ ] Connection encryption (SSL/TLS)
-- [ ] Query performance analytics
-- [ ] Multi-database connection management
-- [ ] GraphQL-style query building
-
----
-
-**Made with ❤️ for the Claude Code community**
-
-*Powered by [php-mcp/server](https://github.com/php-mcp/server)*

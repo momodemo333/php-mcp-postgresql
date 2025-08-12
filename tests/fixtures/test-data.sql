@@ -1,61 +1,85 @@
--- Test database initialization
--- This file is loaded when the test MySQL container starts
+-- PostgreSQL test data insertion
+-- Inserts sample data for testing
 
--- Create test database and tables
-CREATE DATABASE IF NOT EXISTS testdb;
-USE testdb;
+-- Insert test users
+INSERT INTO users (username, email, full_name, is_active, metadata) VALUES
+    ('john_doe', 'john@example.com', 'John Doe', true, '{"role": "admin", "preferences": {"theme": "dark"}}'),
+    ('jane_smith', 'jane@example.com', 'Jane Smith', true, '{"role": "user", "preferences": {"theme": "light"}}'),
+    ('bob_wilson', 'bob@example.com', 'Bob Wilson', false, '{"role": "user", "suspended": true}'),
+    ('alice_jones', 'alice@example.com', 'Alice Jones', true, '{"role": "moderator"}'),
+    ('charlie_brown', 'charlie@example.com', 'Charlie Brown', true, '{"role": "user", "verified": true}');
 
--- Test table for basic CRUD operations
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- Insert test products with PostgreSQL-specific features
+INSERT INTO products (name, description, price, stock_quantity, category, tags, specifications) VALUES
+    ('Laptop Pro', 'High-performance laptop', 1299.99, 50, 'Electronics', 
+     ARRAY['computers', 'portable', 'business'], 
+     '{"cpu": "Intel i7", "ram": "16GB", "storage": "512GB SSD", "display": {"size": 15.6, "resolution": "1920x1080"}}'),
+    
+    ('Wireless Mouse', 'Ergonomic wireless mouse', 29.99, 200, 'Electronics',
+     ARRAY['accessories', 'wireless', 'ergonomic'],
+     '{"connectivity": "Bluetooth 5.0", "battery": "AA", "dpi": 1600}'),
+    
+    ('Office Chair', 'Comfortable office chair', 249.99, 30, 'Furniture',
+     ARRAY['office', 'ergonomic', 'adjustable'],
+     '{"material": "Mesh", "weight_capacity": "150kg", "adjustable": ["height", "armrest", "backrest"]}'),
+    
+    ('USB-C Cable', '2m USB-C charging cable', 19.99, 500, 'Electronics',
+     ARRAY['accessories', 'cables', 'charging'],
+     '{"length": "2m", "type": "USB-C to USB-C", "power_delivery": "100W"}'),
+    
+    ('Standing Desk', 'Electric height-adjustable desk', 599.99, 15, 'Furniture',
+     ARRAY['office', 'ergonomic', 'electric'],
+     '{"dimensions": {"width": 160, "depth": 80, "height_range": [70, 120]}, "motor": "dual", "memory_presets": 4}');
 
--- Test table for complex queries and joins
-CREATE TABLE posts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    title VARCHAR(200) NOT NULL,
-    content TEXT,
-    status ENUM('draft', 'published', 'archived') DEFAULT 'draft',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+-- Insert test orders
+INSERT INTO orders (user_id, product_id, quantity, total_price, status) VALUES
+    (1, 1, 1, 1299.99, 'completed'),
+    (1, 2, 2, 59.98, 'completed'),
+    (2, 3, 1, 249.99, 'shipped'),
+    (2, 4, 3, 59.97, 'pending'),
+    (4, 1, 1, 1299.99, 'processing'),
+    (5, 5, 1, 599.99, 'completed'),
+    (1, 4, 5, 99.95, 'completed');
 
--- Test table for permissions and security testing
-CREATE TABLE sensitive_data (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    secret_value VARCHAR(255) NOT NULL,
-    access_level ENUM('public', 'private', 'confidential') DEFAULT 'private'
-);
+-- Insert test permissions
+INSERT INTO test_permissions (resource, action, allowed) VALUES
+    ('users', 'read', true),
+    ('users', 'write', false),
+    ('products', 'read', true),
+    ('products', 'write', true),
+    ('orders', 'read', true),
+    ('orders', 'write', false),
+    ('orders', 'delete', false);
 
--- Insert test data
-INSERT INTO users (name, email) VALUES 
-    ('John Doe', 'john@example.com'),
-    ('Jane Smith', 'jane@example.com'),
-    ('Bob Wilson', 'bob@example.com');
+-- Create some test sequences
+CREATE SEQUENCE IF NOT EXISTS test_sequence START 1000;
+CREATE SEQUENCE IF NOT EXISTS invoice_number START 2024001;
 
-INSERT INTO posts (user_id, title, content, status) VALUES 
-    (1, 'First Post', 'This is the first post content', 'published'),
-    (1, 'Draft Post', 'This is a draft', 'draft'),
-    (2, 'Jane Post', 'Content by Jane', 'published'),
-    (3, 'Bob Article', 'Article by Bob', 'archived');
+-- Insert data using PostgreSQL-specific features
+-- Example of using RETURNING clause (will be tested in actual tests)
+-- INSERT INTO users (username, email, full_name) 
+-- VALUES ('test_return', 'return@example.com', 'Test Return')
+-- RETURNING id, username, created_at;
 
-INSERT INTO sensitive_data (secret_value, access_level) VALUES 
-    ('public_info', 'public'),
-    ('private_data', 'private'),
-    ('top_secret', 'confidential');
+-- Create a materialized view for testing
+CREATE MATERIALIZED VIEW IF NOT EXISTS product_statistics AS
+SELECT 
+    p.category,
+    COUNT(*) as product_count,
+    AVG(p.price) as avg_price,
+    MIN(p.price) as min_price,
+    MAX(p.price) as max_price,
+    SUM(p.stock_quantity) as total_stock
+FROM products p
+GROUP BY p.category
+WITH DATA;
 
--- Test schema for DDL operations testing
-CREATE TABLE test_ddl (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    data VARCHAR(50)
-);
+-- Refresh the materialized view
+REFRESH MATERIALIZED VIEW product_statistics;
 
--- Grant permissions to test user
-GRANT SELECT, INSERT, UPDATE, DELETE ON testdb.* TO 'testuser'@'%';
-GRANT CREATE, ALTER, DROP ON testdb.test_ddl TO 'testuser'@'%';
-FLUSH PRIVILEGES;
+-- Add some test comments for documentation
+COMMENT ON TABLE users IS 'Test users table for MCP PostgreSQL server';
+COMMENT ON COLUMN users.metadata IS 'JSONB column storing user preferences and settings';
+COMMENT ON TABLE products IS 'Test products table with PostgreSQL-specific types';
+COMMENT ON COLUMN products.tags IS 'Array of text tags for categorization';
+COMMENT ON COLUMN products.specifications IS 'JSONB column for flexible product specs';

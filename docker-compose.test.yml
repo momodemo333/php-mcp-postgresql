@@ -1,29 +1,42 @@
 version: '3.8'
 
 services:
-  mysql-test:
-    image: mysql:8.0
-    container_name: php-mcp-mysql-test
+  postgres:
+    image: postgres:15-alpine
+    container_name: pgsql-mcp-test
     environment:
-      MYSQL_ROOT_PASSWORD: testroot
-      MYSQL_DATABASE: testdb
-      MYSQL_USER: testuser
-      MYSQL_PASSWORD: testpass
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: testdb
     ports:
-      - "33306:3306"
+      - "54320:5432"  # Port externe différent pour éviter les conflits
     volumes:
-      - ./tests/fixtures/test-data.sql:/docker-entrypoint-initdb.d/01-test-data.sql
-      - mysql_test_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password
+      - ./tests/fixtures/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./tests/fixtures/test-data.sql:/docker-entrypoint-initdb.d/02-test-data.sql:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U testuser -d testdb"]
+      interval: 5s
       timeout: 5s
       retries: 10
-      interval: 10s
     tmpfs:
-      - /tmp
-      - /var/lib/mysql-files
+      - /var/lib/postgresql/data  # Utilise la RAM pour les tests (plus rapide)
 
-volumes:
-  mysql_test_data:
-    driver: local
+  # Service optionnel pour pgAdmin (interface web)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgsql-mcp-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@test.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    profiles:
+      - debug  # Seulement lancé avec --profile debug
+
+networks:
+  default:
+    name: pgsql-mcp-test-network

@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "postgresql-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network", "host",
+        "-e", "PGSQL_HOST=localhost",
+        "-e", "PGSQL_PORT=5432",
+        "-e", "PGSQL_USER=postgres",
+        "-e", "PGSQL_PASS=postgres",
+        "-e", "PGSQL_DB=myapp",
+        "-e", "ALLOW_INSERT_OPERATION=true",
+        "-e", "ALLOW_UPDATE_OPERATION=true",
+        "-e", "ALLOW_DELETE_OPERATION=false",
+        "php-mcp-postgresql:latest"
+      ],
+      "type": "stdio"
+    }
+  }
+}
