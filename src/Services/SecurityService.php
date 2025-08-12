@@ -23,7 +23,7 @@ class SecurityService
 
     // Mots-clés vraiment dangereux - contrôlés par ALLOW_ALL_OPERATIONS uniquement
     private array $dangerousKeywords = [
-        'GRANT', 'REVOKE', 'LOAD_FILE', 'INTO OUTFILE', 'INTO DUMPFILE', 
+        'GRANT', 'REVOKE', 'LOAD_FILE', 'LOAD DATA', 'INTO OUTFILE', 'INTO DUMPFILE', 
         'SYSTEM', 'EXEC', 'SHUTDOWN', 'FLUSH', 'RESET', 'KILL', 'SET PASSWORD'
     ];
 
@@ -103,7 +103,10 @@ class SecurityService
         // Vérification des mots-clés DDL
         if (!$this->getBoolConfig('ALLOW_DDL_OPERATIONS', false)) {
             foreach ($this->ddlKeywords as $keyword) {
-                if (strpos($upperQuery, $keyword) !== false) {
+                // Utilisation de word boundaries pour éviter les faux positifs comme "created_at"
+                // \b assure que le mot-clé est un mot complet et non une sous-chaîne
+                $pattern = '/\b' . preg_quote($keyword, '/') . '\b/i';
+                if (preg_match($pattern, $query)) {
                     $this->logger->warning('Mot-clé DDL détecté sans permission', [
                         'keyword' => $keyword,
                         'query' => substr($query, 0, 200)
@@ -116,12 +119,27 @@ class SecurityService
         // Vérification des mots-clés vraiment dangereux (toujours bloqués sauf si ALLOW_ALL_OPERATIONS=true)
         if ($this->getBoolConfig('BLOCK_DANGEROUS_KEYWORDS', true)) {
             foreach ($this->dangerousKeywords as $keyword) {
-                if (strpos($upperQuery, $keyword) !== false) {
-                    $this->logger->warning('Mot-clé dangereux détecté', [
-                        'keyword' => $keyword,
-                        'query' => substr($query, 0, 200)
-                    ]);
-                    throw new SecurityException("Mot-clé non autorisé détecté: {$keyword}");
+                // Pour les mots composés comme "INTO OUTFILE", on garde strpos
+                // Pour les mots simples, on utilise les word boundaries
+                if (strpos($keyword, ' ') !== false) {
+                    // Mot composé : recherche exacte de la séquence
+                    if (strpos($upperQuery, $keyword) !== false) {
+                        $this->logger->warning('Mot-clé dangereux détecté', [
+                            'keyword' => $keyword,
+                            'query' => substr($query, 0, 200)
+                        ]);
+                        throw new SecurityException("Mot-clé non autorisé détecté: {$keyword}");
+                    }
+                } else {
+                    // Mot simple : utilisation de word boundaries
+                    $pattern = '/\b' . preg_quote($keyword, '/') . '\b/i';
+                    if (preg_match($pattern, $query)) {
+                        $this->logger->warning('Mot-clé dangereux détecté', [
+                            'keyword' => $keyword,
+                            'query' => substr($query, 0, 200)
+                        ]);
+                        throw new SecurityException("Mot-clé non autorisé détecté: {$keyword}");
+                    }
                 }
             }
         }
