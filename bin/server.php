@@ -85,7 +85,7 @@ class StderrLogger implements \Psr\Log\LoggerInterface
 
 // Gestion des arguments de ligne de commande
 if (isset($argv[1]) && ($argv[1] === '--version' || $argv[1] === '-v')) {
-    echo "PostgreSQL MCP Server v1.0.0-beta\n";
+    echo "PostgreSQL MCP Server v1.0.0\n";
     exit(0);
 }
 
