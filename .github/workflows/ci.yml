@@ -13,9 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     
     strategy:
+      fail-fast: false
       matrix:
         php-version: ['8.1', '8.2', '8.3']
-        postgres-version: ['13', '14', '15']
+        postgres-version: ['15']
+        include:
+          - php-version: '8.3'
+            postgres-version: '14'
+          - php-version: '8.3'
+            postgres-version: '13'
     
     services:
       postgres:
@@ -39,8 +45,16 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-version }}
-        extensions: pdo, pdo_pgsql
-        coverage: xdebug
+        extensions: pdo, pdo_pgsql, mbstring
+        ini-values: memory_limit=256M, max_execution_time=180
+        coverage: none
+        tools: composer:v2
+    
+    - name: Verify PHP Installation
+      run: |
+        php -v
+        php -m | grep -E "(pdo|pgsql)"
+        composer --version
     
     - name: Install PostgreSQL client
       run: |
@@ -103,7 +117,10 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3'
-        extensions: pdo, pdo_pgsql
+        extensions: pdo, pdo_pgsql, mbstring
+        ini-values: memory_limit=256M
+        coverage: none
+        tools: composer:v2
     
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
