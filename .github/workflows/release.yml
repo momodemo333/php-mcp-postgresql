@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  packagist:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        tools: composer:v2
+    
+    - name: Validate composer.json
+      run: composer validate --strict
+    
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-dev --optimize-autoloader
+    
+    - name: Create release artifact
+      run: |
+        tar -czf php-mcp-postgresql-${{ github.event.release.tag_name }}.tar.gz \
+          --exclude='.git' \
+          --exclude='vendor' \
+          --exclude='tests' \
+          --exclude='.github' \
+          --exclude='docker-compose.test.yml' \
+          .
+    
+    - name: Upload release artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./php-mcp-postgresql-${{ github.event.release.tag_name }}.tar.gz
+        asset_name: php-mcp-postgresql-${{ github.event.release.tag_name }}.tar.gz
+        asset_content_type: application/gzip
+    
+    - name: Trigger Packagist update
+      if: github.event.release.prerelease == false
+      run: |
+        curl -XPOST -H'content-type:application/json' \
+          'https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_TOKEN }}' \
+          -d'{"repository":{"url":"https://packagist.org/packages/momodemo333/php-mcp-postgresql"}}' || echo "Packagist webhook failed, package will update automatically"
