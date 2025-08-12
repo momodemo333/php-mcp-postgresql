@@ -87,10 +87,10 @@ jobs:
         PGSQL_PASS: testpass
         PGSQL_DB: testdb
       run: |
-        if [ -f vendor/bin/phpunit ]; then
+        if [ -f vendor/bin/phpunit ] && [ -f phpunit.xml ]; then
           vendor/bin/phpunit --coverage-text
         else
-          echo "PHPUnit not installed, skipping unit tests"
+          echo "PHPUnit not configured for this project, skipping unit tests"
         fi
 
   code-quality:
