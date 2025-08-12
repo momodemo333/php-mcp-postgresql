@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-08-12
+
+### 🐛 Fixed
+- **Critical SQL Syntax Fix** - Resolved issue #2: PostgreSQL queries now use correct double-quote syntax instead of MySQL backticks
+  - Fixed INSERT operations failing with syntax errors
+  - Fixed UPDATE operations with incorrect identifier quoting  
+  - Fixed DELETE operations using wrong SQL syntax
+  - All database modification operations now work correctly with PostgreSQL
+
+### 🧹 Cleaned Up
+- **MySQL References Removal** - Removed all obsolete MySQL references from PostgreSQL project
+  - Removed `MIGRATION_PLAN.md` and `IMPLEMENTATION_STATUS.md` (migration artifacts)
+  - Removed `docs/mysql-timeout-troubleshooting.md` (MySQL-specific documentation)
+  - Updated all configuration examples from MySQL to PostgreSQL syntax
+  - Updated environment variables from `MYSQL_*` to `PGSQL_*` throughout project
+  - Updated `CLAUDE.md` with PostgreSQL-specific technical information
+
+### ⚡ Improved
+- **Project Consistency** - All configuration files now consistently use PostgreSQL standards
+  - Configuration examples use port 5432 and PostgreSQL-specific settings
+  - Scripts and test configurations updated to PostgreSQL namespace and variables
+  - Documentation aligned with PostgreSQL project identity
+
 ## [1.0.0] - 2025-01-12
 
 ### 🎉 Initial Release
