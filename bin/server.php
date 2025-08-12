@@ -6,7 +6,7 @@ declare(strict_types=1);
 // Autoload des dépendances
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use MySqlMcp\MySqlServer;
+use PostgreSqlMcp\PostgreSqlServer;
 use PhpMcp\Server\Transports\StdioServerTransport;
 use Psr\Log\LogLevel;
 
@@ -88,21 +88,21 @@ try {
     $logLevel = $_ENV['LOG_LEVEL'] ?? 'INFO';
     $logger = new StderrLogger($logLevel);
     
-    $logger->info('Démarrage du serveur MySQL MCP');
+    $logger->info('Démarrage du serveur PostgreSQL MCP');
     
-    // Création du serveur MySQL MCP
-    $mysqlServer = new MySqlServer([], $logger);
+    // Création du serveur PostgreSQL MCP
+    $pgsqlServer = new PostgreSqlServer([], $logger);
     
     // Test de connexion avant démarrage
-    if (!$mysqlServer->testConnection()) {
-        $logger->error('Impossible de se connecter à MySQL avec la configuration actuelle');
+    if (!$pgsqlServer->testConnection()) {
+        $logger->error('Impossible de se connecter à PostgreSQL avec la configuration actuelle');
         exit(1);
     }
     
-    $logger->info('Connexion MySQL validée', $mysqlServer->getConfig());
+    $logger->info('Connexion PostgreSQL validée', $pgsqlServer->getConfig());
     
     // Construction du serveur MCP
-    $server = $mysqlServer->createServer();
+    $server = $pgsqlServer->createServer();
     
     // Création du transport stdio
     $transport = new StdioServerTransport();

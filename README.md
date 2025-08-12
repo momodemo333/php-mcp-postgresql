@@ -1,13 +1,13 @@
-# 🗄️ PHP MCP MySQL Server
+# 🐘 PHP MCP PostgreSQL Server
 
 [![PHP](https://img.shields.io/badge/PHP->=8.1-blue.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-3.3-purple.svg)](https://github.com/php-mcp/server)
-[![Tests](https://github.com/momodemo333/php-mcp-mysql/workflows/Tests/badge.svg)](https://github.com/momodemo333/php-mcp-mysql/actions)
-[![Packagist](https://img.shields.io/packagist/v/momodemo333/php-mcp-mysql.svg)](https://packagist.org/packages/momodemo333/php-mcp-mysql)
-[![Downloads](https://img.shields.io/packagist/dt/momodemo333/php-mcp-mysql.svg)](https://packagist.org/packages/momodemo333/php-mcp-mysql)
+[![Status](https://img.shields.io/badge/Status-WIP-orange.svg)](IMPLEMENTATION_STATUS.md)
 
-MySQL MCP Server for Claude Code - Secure and configurable MySQL integration via Model Context Protocol.
+PostgreSQL MCP Server for Claude Code - Secure and configurable PostgreSQL integration via Model Context Protocol.
+
+> ⚠️ **Work in Progress**: This project is being migrated from MySQL to PostgreSQL. See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for progress.
 
 ## 🙏 Acknowledgments
 

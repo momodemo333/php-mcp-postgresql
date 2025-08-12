@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace MySqlMcp\Elements;
+namespace PostgreSqlMcp\Elements;
 
-use MySqlMcp\Services\ConnectionService;
-use MySqlMcp\Services\SecurityService;
-use MySqlMcp\Exceptions\MySqlMcpException;
-use MySqlMcp\Exceptions\QueryException;
-use MySqlMcp\Exceptions\SecurityException;
+use PostgreSqlMcp\Services\ConnectionService;
+use PostgreSqlMcp\Services\SecurityService;
+use PostgreSqlMcp\Exceptions\PostgreSqlMcpException;
+use PostgreSqlMcp\Exceptions\QueryException;
+use PostgreSqlMcp\Exceptions\SecurityException;
 use PhpMcp\Server\Attributes\McpTool;
 use PhpMcp\Server\Attributes\Schema;
 use Psr\Log\LoggerInterface;
 
 /**
- * Outils MCP pour l'exécution de requêtes SQL
+ * Outils MCP pour l'exécution de requêtes PostgreSQL
  */
 class QueryTools
 {
@@ -37,7 +37,7 @@ class QueryTools
 
     /**
      * Méthode wrapper pour exécuter toute requête avec retry automatique
-     * en cas de connexion MySQL fermée (error 2006/2013)
+     * en cas de connexion PostgreSQL fermée
      */
     private function executeWithRetry(callable $callback, int $maxRetries = 2): mixed
     {
@@ -47,7 +47,7 @@ class QueryTools
     /**
      * Exécute une requête SELECT avec validation de sécurité
      */
-    #[McpTool(name: 'mysql_select')]
+    #[McpTool(name: 'pgsql_select')]
     public function executeSelect(
         #[Schema(type: 'string', description: 'Requête SELECT à exécuter')]
         string $query,
@@ -188,7 +188,7 @@ class QueryTools
     /**
      * Exécute une requête UPDATE
      */
-    #[McpTool(name: 'mysql_update')]
+    #[McpTool(name: 'pgsql_update')]
     public function executeUpdate(
         #[Schema(type: 'string', description: 'Nom de la table')]
         string $table,
@@ -287,7 +287,7 @@ class QueryTools
     /**
      * Exécute une requête DELETE
      */
-    #[McpTool(name: 'mysql_delete')]
+    #[McpTool(name: 'pgsql_delete')]
     public function executeDelete(
         #[Schema(type: 'string', description: 'Nom de la table')]
         string $table,
@@ -371,7 +371,7 @@ class QueryTools
     /**
      * Exécute une requête SQL personnalisée (pour requêtes complexes)
      */
-    #[McpTool(name: 'mysql_execute_query')]
+    #[McpTool(name: 'pgsql_execute_query')]
     public function executeCustomQuery(
         #[Schema(type: 'string', description: 'Requête SQL à exécuter')]
         string $query,

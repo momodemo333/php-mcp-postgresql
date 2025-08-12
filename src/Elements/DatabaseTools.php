@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace MySqlMcp\Elements;
+namespace PostgreSqlMcp\Elements;
 
-use MySqlMcp\Services\ConnectionService;
-use MySqlMcp\Services\SecurityService;
-use MySqlMcp\Exceptions\MySqlMcpException;
+use PostgreSqlMcp\Services\ConnectionService;
+use PostgreSqlMcp\Services\SecurityService;
+use PostgreSqlMcp\Exceptions\PostgreSqlMcpException;
 use PhpMcp\Server\Attributes\McpTool;
 use PhpMcp\Server\Attributes\Schema;
 use Psr\Log\LoggerInterface;
 
 /**
- * Outils MCP pour la gestion des bases de données et tables
+ * Outils MCP pour la gestion des bases de données et tables PostgreSQL
  */
 class DatabaseTools
 {
@@ -33,17 +33,18 @@ class DatabaseTools
     /**
      * Liste toutes les bases de données disponibles
      */
-    #[McpTool(name: 'mysql_list_databases')]
+    #[McpTool(name: 'pgsql_list_databases')]
     public function listDatabases(): array
     {
         $pdo = $this->connectionService->getConnection();
         
         try {
-            $stmt = $pdo->query('SHOW DATABASES');
+            // PostgreSQL: requête pour lister les bases de données
+            $stmt = $pdo->query('SELECT datname FROM pg_database WHERE datistemplate = false ORDER BY datname');
             $databases = $stmt->fetchAll(\PDO::FETCH_COLUMN);
             
-            // Filtre les bases système par défaut
-            $systemDatabases = ['information_schema', 'performance_schema', 'mysql', 'sys'];
+            // Filtre les bases système PostgreSQL
+            $systemDatabases = ['postgres', 'template0', 'template1'];
             $userDatabases = array_diff($databases, $systemDatabases);
             
             $this->logger->info('Bases de données listées', [
@@ -59,7 +60,7 @@ class DatabaseTools
             
         } catch (\Exception $e) {
             $this->logger->error('Erreur lors du listage des bases', ['error' => $e->getMessage()]);
-            throw new MySqlMcpException('Impossible de lister les bases de données: ' . $e->getMessage());
+            throw new PostgreSqlMcpException('Impossible de lister les bases de données: ' . $e->getMessage());
         } finally {
             $this->connectionService->releaseConnection($pdo);
         }
@@ -68,7 +69,7 @@ class DatabaseTools
     /**
      * Liste toutes les tables d'une base de données
      */
-    #[McpTool(name: 'mysql_list_tables')]
+    #[McpTool(name: 'pgsql_list_tables')]
     public function listTables(
         #[Schema(type: 'string', description: 'Nom de la base de données (optionnel en mode multi-DB)')]
         ?string $database = null,
@@ -82,11 +83,26 @@ class DatabaseTools
         $pdo = $this->connectionService->getConnection();
         
         try {
+            // PostgreSQL: utilise information_schema ou pg_tables
             if ($database) {
-                $stmt = $pdo->prepare('SHOW TABLES FROM `' . $database . '`');
+                // Sélectionne une base spécifique
+                $pdo->exec("SET search_path TO public");
+                $stmt = $pdo->prepare("
+                    SELECT tablename 
+                    FROM pg_tables 
+                    WHERE schemaname = 'public' 
+                    AND tableowner = current_user
+                    ORDER BY tablename
+                ");
                 $stmt->execute();
             } else {
-                $stmt = $pdo->query('SHOW TABLES');
+                // Utilise la base courante
+                $stmt = $pdo->query("
+                    SELECT tablename 
+                    FROM pg_tables 
+                    WHERE schemaname = 'public'
+                    ORDER BY tablename
+                ");
             }
             
             $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
@@ -131,7 +147,7 @@ class DatabaseTools
                 'database' => $database,
                 'error' => $e->getMessage()
             ]);
-            throw new MySqlMcpException('Impossible de lister les tables: ' . $e->getMessage());
+            throw new PostgreSqlMcpException('Impossible de lister les tables: ' . $e->getMessage());
         } finally {
             $this->connectionService->releaseConnection($pdo);
         }
@@ -140,7 +156,7 @@ class DatabaseTools
     /**
      * Décrit la structure d'une table
      */
-    #[McpTool(name: 'mysql_describe_table')]
+    #[McpTool(name: 'pgsql_describe_table')]
     public function describeTable(
         #[Schema(type: 'string', description: 'Nom de la table')]
         string $table,
@@ -152,14 +168,40 @@ class DatabaseTools
             $pdo = $this->connectionService->getConnection();
             
             try {
-                // Construction de la requête DESCRIBE
-                $query = $database ? "DESCRIBE `{$database}`.`{$table}`" : "DESCRIBE `{$table}`";
-                $stmt = $pdo->query($query);
+                // PostgreSQL: utilise information_schema pour décrire la table
+                $schemaName = 'public'; // Par défaut dans PostgreSQL
+                
+                $columnsQuery = "
+                    SELECT 
+                        column_name,
+                        data_type,
+                        character_maximum_length,
+                        is_nullable,
+                        column_default,
+                        numeric_precision,
+                        numeric_scale
+                    FROM information_schema.columns
+                    WHERE table_schema = :schema
+                    AND table_name = :table
+                    ORDER BY ordinal_position
+                ";
+                
+                $stmt = $pdo->prepare($columnsQuery);
+                $stmt->execute(['schema' => $schemaName, 'table' => $table]);
                 $columns = $stmt->fetchAll();
                 
-                // Récupère les index
-                $indexQuery = $database ? "SHOW INDEX FROM `{$database}`.`{$table}`" : "SHOW INDEX FROM `{$table}`";
-                $indexStmt = $pdo->query($indexQuery);
+                // Récupère les index PostgreSQL
+                $indexQuery = "
+                    SELECT 
+                        indexname,
+                        indexdef
+                    FROM pg_indexes
+                    WHERE schemaname = :schema
+                    AND tablename = :table
+                ";
+                
+                $indexStmt = $pdo->prepare($indexQuery);
+                $indexStmt->execute(['schema' => $schemaName, 'table' => $table]);
                 $indexes = $indexStmt->fetchAll();
                 
                 // Récupère les contraintes (foreign keys)
@@ -171,13 +213,13 @@ class DatabaseTools
                         REFERENCED_TABLE_NAME,
                         REFERENCED_COLUMN_NAME
                     FROM information_schema.KEY_COLUMN_USAGE 
-                    WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) 
+                    WHERE CONSTRAINT_SCHEMA = ?
                     AND TABLE_NAME = ?
-                    AND REFERENCED_TABLE_NAME IS NOT NULL
+                    AND CONSTRAINT_TYPE = 'FOREIGN KEY'
                 ";
                 
                 $constraintsStmt = $pdo->prepare($constraintsQuery);
-                $constraintsStmt->execute([$database, $table]);
+                $constraintsStmt->execute([$schemaName, $table]);
                 $foreignKeys = $constraintsStmt->fetchAll();
                 
                 $this->logger->info('Structure de table décrite', [
@@ -224,11 +266,26 @@ class DatabaseTools
         $pdo = $this->connectionService->getConnection();
         
         try {
+            // PostgreSQL: utilise information_schema ou pg_tables
             if ($database) {
-                $stmt = $pdo->prepare('SHOW TABLES FROM `' . $database . '`');
+                // Sélectionne une base spécifique
+                $pdo->exec("SET search_path TO public");
+                $stmt = $pdo->prepare("
+                    SELECT tablename 
+                    FROM pg_tables 
+                    WHERE schemaname = 'public' 
+                    AND tableowner = current_user
+                    ORDER BY tablename
+                ");
                 $stmt->execute();
             } else {
-                $stmt = $pdo->query('SHOW TABLES');
+                // Utilise la base courante
+                $stmt = $pdo->query("
+                    SELECT tablename 
+                    FROM pg_tables 
+                    WHERE schemaname = 'public'
+                    ORDER BY tablename
+                ");
             }
             
             $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
@@ -265,9 +322,9 @@ class DatabaseTools
     }
 
     /**
-     * Obtient le statut du serveur MySQL
+     * Obtient le statut du serveur PostgreSQL
      */
-    #[McpTool(name: 'mysql_server_status')]
+    #[McpTool(name: 'pgsql_server_status')]
     public function getServerStatus(): array
     {
         return $this->connectionService->executeWithRetry(function() {
@@ -276,19 +333,24 @@ class DatabaseTools
                 
                 $pdo = $this->connectionService->getConnection();
                 
-                // Récupère des statistiques supplémentaires
-                $statusStmt = $pdo->query("SHOW STATUS WHERE Variable_name IN ('Connections', 'Queries', 'Uptime', 'Threads_connected')");
-                $statusData = [];
-                while ($row = $statusStmt->fetch()) {
-                    $statusData[$row['Variable_name']] = $row['Value'];
-                }
+                // Récupère des statistiques PostgreSQL
+                $statsQuery = "
+                    SELECT 
+                        numbackends as connections,
+                        xact_commit + xact_rollback as queries,
+                        stats_reset
+                    FROM pg_stat_database 
+                    WHERE datname = current_database()
+                ";
+                $statusStmt = $pdo->query($statsQuery);
+                $statusData = $statusStmt->fetch();
                 
                 $this->connectionService->releaseConnection($pdo);
                 
                 $result = array_merge($serverInfo, [
-                    'mysql_connections' => (int)($statusData['Connections'] ?? 0),
-                    'mysql_queries' => (int)($statusData['Queries'] ?? 0),
-                    'mysql_threads_connected' => (int)($statusData['Threads_connected'] ?? 0),
+                    'postgresql_connections' => (int)($statusData['connections'] ?? 0),
+                    'postgresql_queries' => (int)($statusData['queries'] ?? 0),
+                    'stats_reset' => $statusData['stats_reset'] ?? null,
                     'connection_test' => $this->connectionService->testConnection()
                 ]);
                 
@@ -298,7 +360,7 @@ class DatabaseTools
                 
             } catch (\Exception $e) {
                 $this->logger->error('Erreur récupération statut serveur', ['error' => $e->getMessage()]);
-                throw new MySqlMcpException('Impossible de récupérer le statut du serveur: ' . $e->getMessage());
+                throw new PostgreSqlMcpException('Impossible de récupérer le statut du serveur: ' . $e->getMessage());
             }
         });
     }
@@ -309,27 +371,27 @@ class DatabaseTools
     private function getTableInfo(\PDO $pdo, string $table, ?string $database): array
     {
         try {
+            // PostgreSQL: utilise pg_stat_user_tables pour les statistiques
             $query = "
                 SELECT 
-                    table_rows as row_count,
-                    data_length as data_size,
-                    index_length as index_size,
-                    engine,
-                    table_collation
-                FROM information_schema.TABLES 
-                WHERE table_schema = COALESCE(?, DATABASE()) 
-                AND table_name = ?
+                    n_live_tup as row_count,
+                    pg_total_relation_size(c.oid) as total_size,
+                    pg_table_size(c.oid) as data_size,
+                    pg_indexes_size(c.oid) as index_size
+                FROM pg_stat_user_tables t
+                JOIN pg_class c ON c.relname = t.relname
+                WHERE t.schemaname = 'public'
+                AND t.relname = ?
             ";
             
             $stmt = $pdo->prepare($query);
-            $stmt->execute([$database, $table]);
+            $stmt->execute([$table]);
             $info = $stmt->fetch();
             
             return [
                 'name' => $table,
-                'engine' => $info['engine'] ?? 'Unknown',
-                'collation' => $info['table_collation'] ?? 'Unknown',
                 'row_count' => (int)($info['row_count'] ?? 0),
+                'total_size' => (int)($info['total_size'] ?? 0),
                 'data_size' => (int)($info['data_size'] ?? 0),
                 'index_size' => (int)($info['index_size'] ?? 0),
                 'total_size' => (int)($info['data_size'] ?? 0) + (int)($info['index_size'] ?? 0)

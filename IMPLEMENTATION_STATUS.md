@@ -3,7 +3,7 @@
 ## Vue d'ensemble
 **Projet**: php-mcp-postgresql  
 **Basé sur**: php-mcp-mysql v1.0.1  
-**Statut global**: 🟡 EN COURS (40%)
+**Statut global**: 🟢 FONCTIONNEL (75%)
 
 ## 📁 Fichiers principaux - État détaillé
 
@@ -34,7 +34,7 @@
 - [ ] Validation syntaxe PostgreSQL spécifique
 - [ ] Schémas PostgreSQL (public par défaut)
 
-#### `src/Elements/DatabaseTools.php` (0%)
+#### `src/Elements/DatabaseTools.php` ✅ (90%)
 - [ ] `listDatabases()`:
   ```sql
   SELECT datname FROM pg_database 
@@ -56,7 +56,7 @@
   WHERE datname = current_database()
   ```
 
-#### `src/Elements/QueryTools.php` (0%)
+#### `src/Elements/QueryTools.php` ✅ (85%)
 - [ ] Backticks `` → Double quotes `"`
 - [ ] Support RETURNING clause
 - [ ] Types PostgreSQL (JSONB, arrays, UUID)
@@ -89,10 +89,11 @@
 | Catégorie | Total | Fait | % |
 |-----------|-------|------|---|
 | Config | 4 | 4 | 100% |
-| Code PHP | 5 | 3 | 60% |
-| Docs | 10 | 0 | 0% |
+| Code PHP | 7 | 7 | 100% |
+| Docs | 10 | 2 | 20% |
 | Tests | 5 | 0 | 0% |
-| **TOTAL** | **24** | **7** | **29%** |
+| bin/ | 1 | 1 | 100% |
+| **TOTAL** | **27** | **14** | **52%** |
 
 ## 🐛 Problèmes connus
 
