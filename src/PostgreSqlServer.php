@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace MySqlMcp;
+namespace PostgreSqlMcp;
 
-use MySqlMcp\Services\ConnectionService;
-use MySqlMcp\Services\SecurityService;
-use MySqlMcp\Elements\DatabaseTools;
-use MySqlMcp\Elements\QueryTools;
+use PostgreSqlMcp\Services\ConnectionService;
+use PostgreSqlMcp\Services\SecurityService;
+use PostgreSqlMcp\Elements\DatabaseTools;
+use PostgreSqlMcp\Elements\QueryTools;
 use PhpMcp\Server\Server;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\Container\ContainerInterface;
 
 /**
- * Configuration principale du serveur MCP MySQL
+ * Configuration principale du serveur MCP PostgreSQL
  */
-class MySqlServer
+class PostgreSqlServer
 {
     private array $config;
     private LoggerInterface $logger;
@@ -62,7 +62,7 @@ class MySqlServer
 
         // Configuration du serveur
         $server = Server::make()
-            ->withServerInfo('MySQL MCP Server', '1.0.0')
+            ->withServerInfo('PostgreSQL MCP Server', '1.0.0')
             ->withLogger($this->logger)
             ->withContainer($container)
             
@@ -83,7 +83,7 @@ class MySqlServer
                 function() use ($connectionService): array {
                     return $connectionService->getServerInfo();
                 },
-                uri: 'mysql://connection/status',
+                uri: 'postgresql://connection/status',
                 mimeType: 'application/json'
             )
             
@@ -105,17 +105,17 @@ class MySqlServer
                         ]
                     ];
                 },
-                uri: 'mysql://server/capabilities',
+                uri: 'postgresql://server/capabilities',
                 mimeType: 'application/json'
             )
             
             ->build();
 
-        $this->logger->info('Serveur MCP MySQL configuré', [
+        $this->logger->info('Serveur MCP PostgreSQL configuré', [
             'server_version' => '1.0.0',
-            'mysql_host' => $this->config['MYSQL_HOST'] ?? 'localhost',
-            'mysql_port' => $this->config['MYSQL_PORT'] ?? 3306,
-            'database' => $this->config['MYSQL_DB'] ?: 'multi-db',
+            'pgsql_host' => $this->config['PGSQL_HOST'] ?? 'localhost',
+            'pgsql_port' => $this->config['PGSQL_PORT'] ?? 5432,
+            'database' => $this->config['PGSQL_DB'] ?: 'multi-db',
             'security_enabled' => true
         ]);
 
@@ -158,11 +158,11 @@ class MySqlServer
 
         // Configuration par défaut
         $config = [
-            'MYSQL_HOST' => getenv('MYSQL_HOST') ?: ($_ENV['MYSQL_HOST'] ?? 'localhost'),
-            'MYSQL_PORT' => (int)(getenv('MYSQL_PORT') ?: ($_ENV['MYSQL_PORT'] ?? 3306)),
-            'MYSQL_USER' => getenv('MYSQL_USER') ?: ($_ENV['MYSQL_USER'] ?? 'root'),
-            'MYSQL_PASS' => getenv('MYSQL_PASS') ?: ($_ENV['MYSQL_PASS'] ?? ''),
-            'MYSQL_DB' => getenv('MYSQL_DB') ?: ($_ENV['MYSQL_DB'] ?? ''),
+            'PGSQL_HOST' => getenv('PGSQL_HOST') ?: ($_ENV['PGSQL_HOST'] ?? 'localhost'),
+            'PGSQL_PORT' => (int)(getenv('PGSQL_PORT') ?: ($_ENV['PGSQL_PORT'] ?? 5432)),
+            'PGSQL_USER' => getenv('PGSQL_USER') ?: ($_ENV['PGSQL_USER'] ?? 'postgres'),
+            'PGSQL_PASS' => getenv('PGSQL_PASS') ?: ($_ENV['PGSQL_PASS'] ?? ''),
+            'PGSQL_DB' => getenv('PGSQL_DB') ?: ($_ENV['PGSQL_DB'] ?? ''),
             
             'ALLOW_INSERT_OPERATION' => getenv('ALLOW_INSERT_OPERATION') ?: ($_ENV['ALLOW_INSERT_OPERATION'] ?? 'false'),
             'ALLOW_UPDATE_OPERATION' => getenv('ALLOW_UPDATE_OPERATION') ?: ($_ENV['ALLOW_UPDATE_OPERATION'] ?? 'false'),
@@ -222,7 +222,7 @@ class MySqlServer
     public function getConfig(): array
     {
         $safeConfig = $this->config;
-        $safeConfig['MYSQL_PASS'] = '***';
+        $safeConfig['PGSQL_PASS'] = '***';
         return $safeConfig;
     }
 }

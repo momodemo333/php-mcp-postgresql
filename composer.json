@@ -1,13 +1,13 @@
 {
-    "name": "momodemo333/php-mcp-mysql",
-    "description": "MySQL MCP Server for Claude Code - Secure and configurable MySQL integration via Model Context Protocol",
+    "name": "momodemo333/php-mcp-postgresql",
+    "description": "PostgreSQL MCP Server for Claude Code - Secure and configurable PostgreSQL integration via Model Context Protocol",
     "type": "library",
-    "keywords": ["mcp", "mysql", "claude-code", "ai", "database", "model-context-protocol", "php-mcp"],
-    "homepage": "https://github.com/momodemo333/php-mcp-mysql",
+    "keywords": ["mcp", "postgresql", "postgres", "pgsql", "claude-code", "ai", "database", "model-context-protocol", "php-mcp"],
+    "homepage": "https://github.com/momodemo333/php-mcp-postgresql",
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/momodemo333/php-mcp-mysql/issues",
-        "source": "https://github.com/momodemo333/php-mcp-mysql"
+        "issues": "https://github.com/momodemo333/php-mcp-postgresql/issues",
+        "source": "https://github.com/momodemo333/php-mcp-postgresql"
     },
     "authors": [
         {
@@ -19,7 +19,7 @@
         "php": ">=8.1",
         "php-mcp/server": "^3.3",
         "ext-pdo": "*",
-        "ext-pdo_mysql": "*"
+        "ext-pdo_pgsql": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5|^10.0",
@@ -28,12 +28,12 @@
     },
     "autoload": {
         "psr-4": {
-            "MySqlMcp\\": "src/"
+            "PostgreSqlMcp\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MySqlMcp\\Tests\\": "tests/"
+            "PostgreSqlMcp\\Tests\\": "tests/"
         }
     },
     "config": {
@@ -59,9 +59,9 @@
         "phpunit": "phpunit",
         "phpunit:coverage": "phpunit --coverage-html coverage",
         "post-install-cmd": [
-            "@php -r \"echo '\\n🎉 PHP MCP MySQL Server installed successfully!\\n';\"",
-            "@php -r \"echo '📖 Documentation: https://github.com/momodemo333/php-mcp-mysql#readme\\n';\"",
-            "@php -r \"echo '🚀 Server: vendor/momodemo333/php-mcp-mysql/bin/server.php\\n';\"",
+            "@php -r \"echo '\\n🎉 PHP MCP PostgreSQL Server installed successfully!\\n';\"",
+            "@php -r \"echo '📖 Documentation: https://github.com/momodemo333/php-mcp-postgresql#readme\\n';\"",
+            "@php -r \"echo '🚀 Server: vendor/momodemo333/php-mcp-postgresql/bin/server.php\\n';\"",
             "@php -r \"echo '🙏 Thanks to php-mcp/server for the MCP framework\\n\\n';\""
         ]
     }

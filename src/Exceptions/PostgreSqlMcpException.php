@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MySqlMcp\Exceptions;
+namespace PostgreSqlMcp\Exceptions;
 
 /**
- * Exception de base pour le serveur MCP MySQL
+ * Exception de base pour le serveur MCP PostgreSQL
  */
-class MySqlMcpException extends \Exception
+class PostgreSqlMcpException extends \Exception
 {
     protected array $context = [];
 

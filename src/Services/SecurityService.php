@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace MySqlMcp\Services;
+namespace PostgreSqlMcp\Services;
 
-use MySqlMcp\Exceptions\SecurityException;
+use PostgreSqlMcp\Exceptions\SecurityException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Service de validation et sécurité pour les requêtes MySQL
+ * Service de validation et sécurité pour les requêtes PostgreSQL
  */
 class SecurityService
 {
@@ -23,8 +23,8 @@ class SecurityService
 
     // Mots-clés vraiment dangereux - contrôlés par ALLOW_ALL_OPERATIONS uniquement
     private array $dangerousKeywords = [
-        'GRANT', 'REVOKE', 'LOAD_FILE', 'LOAD DATA', 'INTO OUTFILE', 'INTO DUMPFILE', 
-        'SYSTEM', 'EXEC', 'SHUTDOWN', 'FLUSH', 'RESET', 'KILL', 'SET PASSWORD'
+        'GRANT', 'REVOKE', 'COPY', 'VACUUM', 'ANALYZE', 'CLUSTER',
+        'REINDEX', 'CHECKPOINT', 'SET ROLE', 'SET SESSION AUTHORIZATION'
     ];
 
     public function __construct(array $config, LoggerInterface $logger = null)

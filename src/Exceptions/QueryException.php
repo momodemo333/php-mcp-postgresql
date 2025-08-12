@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MySqlMcp\Exceptions;
+namespace PostgreSqlMcp\Exceptions;
 
 /**
  * Exception pour les erreurs de requête
  */
-class QueryException extends MySqlMcpException
+class QueryException extends PostgreSqlMcpException
 {
 }

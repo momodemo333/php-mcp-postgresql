@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MySqlMcp\Exceptions;
+namespace PostgreSqlMcp\Exceptions;
 
 /**
  * Exception pour les violations de sécurité
  */
-class SecurityException extends MySqlMcpException
+class SecurityException extends PostgreSqlMcpException
 {
 }

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace MySqlMcp\Services;
+namespace PostgreSqlMcp\Services;
 
-use MySqlMcp\Exceptions\ConnectionException;
+use PostgreSqlMcp\Exceptions\ConnectionException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Service de gestion des connexions MySQL avec pool de connexions
+ * Service de gestion des connexions PostgreSQL avec pool de connexions
  */
 class ConnectionService
 {
@@ -97,51 +97,46 @@ class ConnectionService
      */
     private function createConnection(): \PDO
     {
-        $host = $this->config['MYSQL_HOST'] ?? 'localhost';
-        $port = $this->config['MYSQL_PORT'] ?? 3306;
-        $dbname = $this->config['MYSQL_DB'] ?? '';
-        $username = $this->config['MYSQL_USER'] ?? 'root';
-        $password = $this->config['MYSQL_PASS'] ?? '';
+        $host = $this->config['PGSQL_HOST'] ?? 'localhost';
+        $port = $this->config['PGSQL_PORT'] ?? 5432;
+        $dbname = $this->config['PGSQL_DB'] ?? '';
+        $username = $this->config['PGSQL_USER'] ?? 'postgres';
+        $password = $this->config['PGSQL_PASS'] ?? '';
 
-        // Construction du DSN avec TCP explicite
-        $dsn = "mysql:host={$host};port={$port}";
+        // Construction du DSN PostgreSQL
+        $dsn = "pgsql:host={$host};port={$port}";
         if ($dbname) {
             $dsn .= ";dbname={$dbname}";
         }
-        
-        // Force TCP connection pour éviter les problèmes de socket Unix
-        if ($host === 'localhost' || $host === '127.0.0.1') {
-            $dsn .= ";charset=utf8mb4";
-        }
+        // PostgreSQL utilise UTF8 par défaut
+        $dsn .= ";options='--client_encoding=UTF8'";
 
         $options = [
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
             \PDO::ATTR_EMULATE_PREPARES => false,
-            \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
             \PDO::ATTR_TIMEOUT => (int)($this->config['QUERY_TIMEOUT'] ?? 30),
-            // Options optimisées pour éviter "MySQL server has gone away"
-            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,  // Plus sûr pour les connexions longues
-            \PDO::MYSQL_ATTR_FOUND_ROWS => true,
-            \PDO::ATTR_PERSISTENT => false,  // Éviter les connexions persistantes qui peuvent causer des problèmes
+            \PDO::ATTR_PERSISTENT => false,  // Éviter les connexions persistantes
+            // PostgreSQL specific: set statement timeout
+            \PDO::PGSQL_ATTR_DISABLE_PREPARES => false
         ];
 
         try {
             $pdo = new \PDO($dsn, $username, $password, $options);
-            $this->logger->info('Connexion MySQL établie', [
+            $this->logger->info('Connexion PostgreSQL établie', [
                 'host' => $host,
                 'port' => $port,
                 'database' => $dbname ?: 'multi-db'
             ]);
             return $pdo;
         } catch (\PDOException $e) {
-            $this->logger->error('Échec connexion MySQL', [
+            $this->logger->error('Échec connexion PostgreSQL', [
                 'host' => $host,
                 'port' => $port,
                 'error' => $e->getMessage()
             ]);
             throw new ConnectionException(
-                'Impossible de se connecter à MySQL: ' . $e->getMessage(),
+                'Impossible de se connecter à PostgreSQL: ' . $e->getMessage(),
                 $e->getCode(),
                 $e
             );
@@ -173,13 +168,15 @@ class ConnectionService
     {
         $pdo = $this->getConnection();
         try {
-            $version = $pdo->query('SELECT VERSION() as version')->fetch()['version'];
-            $uptime = $pdo->query("SHOW STATUS LIKE 'Uptime'")->fetch()['Value'];
+            $version = $pdo->query('SELECT version()')->fetchColumn();
+            // PostgreSQL: utilise pg_postmaster_start_time() pour calculer l'uptime
+            $startTimeResult = $pdo->query("SELECT EXTRACT(EPOCH FROM (NOW() - pg_postmaster_start_time()))::INT as uptime")->fetch();
+            $uptime = $startTimeResult['uptime'] ?? 0;
             
             $this->releaseConnection($pdo);
             
             return [
-                'mysql_version' => $version,
+                'postgresql_version' => $version,
                 'uptime_seconds' => (int)$uptime,
                 'connection_pool_size' => $this->maxConnections,
                 'active_connections' => count(array_filter($this->connections, fn($c) => $c['in_use'])),
@@ -241,8 +238,10 @@ class ConnectionService
             $stmt = $pdo->query('SELECT 1');
             return $stmt !== false;
         } catch (\PDOException $e) {
-            // MySQL server has gone away ou autres erreurs de connexion
-            if ($e->getCode() == 2006 || $e->getCode() == 2013) {
+            // PostgreSQL connection errors
+            // 57P01: admin_shutdown, 57P02: crash_shutdown, 57P03: cannot_connect_now
+            // 08006: connection_failure, 08001: sqlclient_unable_to_establish_sqlconnection
+            if (in_array($e->getCode(), ['57P01', '57P02', '57P03', '08006', '08001'])) {
                 return false;
             }
             // Pour les autres erreurs, on considère que la connexion est vivante
@@ -263,9 +262,9 @@ class ConnectionService
             try {
                 return $callback();
             } catch (\PDOException $e) {
-                // MySQL server has gone away
-                if (($e->getCode() == 2006 || $e->getCode() == 2013) && $attempt < $maxRetries - 1) {
-                    $this->logger->warning('Connexion MySQL fermée, tentative de reconnexion', [
+                // PostgreSQL connection lost
+                if (in_array($e->getCode(), ['57P01', '57P02', '57P03', '08006', '08001']) && $attempt < $maxRetries - 1) {
+                    $this->logger->warning('Connexion PostgreSQL fermée, tentative de reconnexion', [
                         'attempt' => $attempt + 1,
                         'error' => $e->getMessage()
                     ]);
