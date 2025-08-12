@@ -1,17 +1,17 @@
 {
     "mcpServers": {
-        "mysql-server": {
+        "postgresql-server": {
             "type": "stdio",
             "command": "php",
             "args": [
-                "/path/to/your/php-mcp-mysql/bin/server.php"
+                "/path/to/your/php-mcp-postgresql/bin/server.php"
             ],
             "env": {
-                "MYSQL_HOST": "localhost",
-                "MYSQL_PORT": "3306",
-                "MYSQL_USER": "your_username",
-                "MYSQL_PASS": "your_password",
-                "MYSQL_DB": "your_database",
+                "PGSQL_HOST": "localhost",
+                "PGSQL_PORT": "5432",
+                "PGSQL_USER": "your_username",
+                "PGSQL_PASS": "your_password",
+                "PGSQL_DB": "your_database",
                 "ALLOW_INSERT_OPERATION": "false",
                 "ALLOW_UPDATE_OPERATION": "false",
                 "ALLOW_DELETE_OPERATION": "false",

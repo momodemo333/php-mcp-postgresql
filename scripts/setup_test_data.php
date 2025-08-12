@@ -5,28 +5,28 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use MySqlMcp\Services\ConnectionService;
+use PostgreSqlMcp\Services\ConnectionService;
 
 /**
- * Script de création de tables et données de test
+ * Script de création de tables et données de test PostgreSQL
  */
 
 try {
-    echo "🗄️ Configuration du serveur de test MySQL...\n";
+    echo "🗄️ Configuration du serveur de test PostgreSQL...\n";
     
     // Configuration pour le serveur de test
     $config = [
-        'MYSQL_HOST' => '127.0.0.1',
-        'MYSQL_PORT' => 33099,
-        'MYSQL_USER' => 'mcpusertest',
-        'MYSQL_PASS' => 'tototugoi',
-        'MYSQL_DB' => 'mcptesttable',
+        'PGSQL_HOST' => '127.0.0.1',
+        'PGSQL_PORT' => 54320,
+        'PGSQL_USER' => 'testuser',
+        'PGSQL_PASS' => 'testpass',
+        'PGSQL_DB' => 'testdb',
         'CONNECTION_POOL_SIZE' => 1
     ];
     
     $connectionService = ConnectionService::getInstance($config);
     
-    echo "✅ Connexion établie au serveur MySQL\n";
+    echo "✅ Connexion établie au serveur PostgreSQL\n";
     
     $pdo = $connectionService->getConnection();
     

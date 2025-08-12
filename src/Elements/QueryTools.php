@@ -139,10 +139,10 @@ class QueryTools
             
             try {
                 // Construction de la requête
-                $tableName = $database ? "`{$database}`.`{$table}`" : "`{$table}`";
+                $tableName = $database ? "\"{$database}\".\"{$table}\"" : "\"{$table}\"";
                 $columns = array_keys($data);
                 $placeholders = ':' . implode(', :', $columns);
-                $columnList = '`' . implode('`, `', $columns) . '`';
+                $columnList = '"' . implode('", "', $columns) . '"';
                 
                 $query = "INSERT INTO {$tableName} ({$columnList}) VALUES ({$placeholders})";
                 
@@ -219,19 +219,19 @@ class QueryTools
             
             try {
                 // Construction de la requête
-                $tableName = $database ? "`{$database}`.`{$table}`" : "`{$table}`";
+                $tableName = $database ? "\"{$database}\".\"{$table}\"" : "\"{$table}\"";
                 
                 // SET clause
                 $setParts = [];
                 foreach ($data as $column => $value) {
-                    $setParts[] = "`{$column}` = :set_{$column}";
+                    $setParts[] = "\"{$column}\" = :set_{$column}";
                 }
                 $setClause = implode(', ', $setParts);
                 
                 // WHERE clause
                 $whereParts = [];
                 foreach ($conditions as $column => $value) {
-                    $whereParts[] = "`{$column}` = :where_{$column}";
+                    $whereParts[] = "\"{$column}\" = :where_{$column}";
                 }
                 $whereClause = implode(' AND ', $whereParts);
                 
@@ -314,12 +314,12 @@ class QueryTools
             
             try {
                 // Construction de la requête
-                $tableName = $database ? "`{$database}`.`{$table}`" : "`{$table}`";
+                $tableName = $database ? "\"{$database}\".\"{$table}\"" : "\"{$table}\"";
                 
                 // WHERE clause
                 $whereParts = [];
                 foreach ($conditions as $column => $value) {
-                    $whereParts[] = "`{$column}` = :{$column}";
+                    $whereParts[] = "\"{$column}\" = :{$column}";
                 }
                 $whereClause = implode(' AND ', $whereParts);
                 
