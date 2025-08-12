@@ -88,7 +88,7 @@ class DatabaseTools
                 // Sélectionne une base spécifique
                 $pdo->exec("SET search_path TO public");
                 $stmt = $pdo->prepare("
-                    SELECT tablename 
+                    SELECT tablename AS table_name
                     FROM pg_tables 
                     WHERE schemaname = 'public' 
                     AND tableowner = current_user
@@ -98,24 +98,25 @@ class DatabaseTools
             } else {
                 // Utilise la base courante
                 $stmt = $pdo->query("
-                    SELECT tablename 
+                    SELECT tablename AS table_name
                     FROM pg_tables 
                     WHERE schemaname = 'public'
                     ORDER BY tablename
                 ");
             }
             
-            $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-            $totalTableCount = count($tables);
+            $tablesRaw = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $totalTableCount = count($tablesRaw);
             
             // Applique la limite
             if ($totalTableCount > $limit) {
-                $tables = array_slice($tables, 0, $limit);
+                $tablesRaw = array_slice($tablesRaw, 0, $limit);
             }
             
             // Récupère des infos sur chaque table selon le mode
             $tableDetails = [];
-            foreach ($tables as $table) {
+            foreach ($tablesRaw as $tableRow) {
+                $table = $tableRow['table_name'];
                 if ($detailed) {
                     $tableInfo = $this->getTableInfo($pdo, $table, $database);
                 } else {
@@ -158,12 +159,17 @@ class DatabaseTools
      */
     #[McpTool(name: 'pgsql_describe_table')]
     public function describeTable(
-        #[Schema(type: 'string', description: 'Nom de la table')]
-        string $table,
-        
         #[Schema(type: 'string', description: 'Nom de la base de données (optionnel)')]
-        ?string $database = null
+        ?string $database = null,
+        
+        #[Schema(type: 'string', description: 'Nom de la table')]
+        string $table = ''
     ): array {
+        // Si l'ancien format est utilisé (table en premier), on inverse
+        if ($table === '' && $database !== null) {
+            $table = $database;
+            $database = null;
+        }
         return $this->connectionService->executeWithRetry(function() use ($table, $database) {
             $pdo = $this->connectionService->getConnection();
             
@@ -204,22 +210,28 @@ class DatabaseTools
                 $indexStmt->execute(['schema' => $schemaName, 'table' => $table]);
                 $indexes = $indexStmt->fetchAll();
                 
-                // Récupère les contraintes (foreign keys)
+                // Récupère les contraintes (foreign keys) - PostgreSQL
                 $constraintsQuery = "
                     SELECT 
-                        CONSTRAINT_NAME,
-                        COLUMN_NAME,
-                        REFERENCED_TABLE_SCHEMA,
-                        REFERENCED_TABLE_NAME,
-                        REFERENCED_COLUMN_NAME
-                    FROM information_schema.KEY_COLUMN_USAGE 
-                    WHERE CONSTRAINT_SCHEMA = ?
-                    AND TABLE_NAME = ?
-                    AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+                        tc.constraint_name,
+                        kcu.column_name,
+                        ccu.table_schema AS referenced_table_schema,
+                        ccu.table_name AS referenced_table_name,
+                        ccu.column_name AS referenced_column_name
+                    FROM information_schema.table_constraints AS tc 
+                    JOIN information_schema.key_column_usage AS kcu
+                        ON tc.constraint_name = kcu.constraint_name
+                        AND tc.table_schema = kcu.table_schema
+                    JOIN information_schema.constraint_column_usage AS ccu
+                        ON ccu.constraint_name = tc.constraint_name
+                        AND ccu.table_schema = tc.table_schema
+                    WHERE tc.constraint_type = 'FOREIGN KEY' 
+                    AND tc.table_schema = :schema
+                    AND tc.table_name = :table
                 ";
                 
                 $constraintsStmt = $pdo->prepare($constraintsQuery);
-                $constraintsStmt->execute([$schemaName, $table]);
+                $constraintsStmt->execute(['schema' => $schemaName, 'table' => $table]);
                 $foreignKeys = $constraintsStmt->fetchAll();
                 
                 $this->logger->info('Structure de table décrite', [
@@ -245,7 +257,7 @@ class DatabaseTools
                     'database' => $database,
                     'error' => $e->getMessage()
                 ]);
-                throw new MySqlMcpException('Impossible de décrire la table: ' . $e->getMessage());
+                throw new PostgreSqlMcpException('Impossible de décrire la table: ' . $e->getMessage());
             } finally {
                 $this->connectionService->releaseConnection($pdo);
             }
@@ -315,7 +327,7 @@ class DatabaseTools
                 'database' => $database,
                 'error' => $e->getMessage()
             ]);
-            throw new MySqlMcpException('Impossible de lister les noms de tables: ' . $e->getMessage());
+            throw new PostgreSqlMcpException('Impossible de lister les noms de tables: ' . $e->getMessage());
         } finally {
             $this->connectionService->releaseConnection($pdo);
         }
@@ -412,29 +424,25 @@ class DatabaseTools
     }
 
     /**
-     * Groupe les index par nom
+     * Groupe les index par nom (PostgreSQL)
      */
     private function groupIndexes(array $indexes): array
     {
         $grouped = [];
         
         foreach ($indexes as $index) {
-            $keyName = $index['Key_name'];
+            // PostgreSQL retourne 'indexname' et 'indexdef'
+            $keyName = $index['indexname'] ?? $index['Key_name'] ?? '';
             
             if (!isset($grouped[$keyName])) {
                 $grouped[$keyName] = [
                     'name' => $keyName,
-                    'unique' => $index['Non_unique'] == 0,
-                    'type' => $index['Index_type'],
+                    'definition' => $index['indexdef'] ?? '',
+                    'unique' => strpos($index['indexdef'] ?? '', 'UNIQUE') !== false,
+                    'type' => 'BTREE', // PostgreSQL utilise principalement BTREE
                     'columns' => []
                 ];
             }
-            
-            $grouped[$keyName]['columns'][] = [
-                'column' => $index['Column_name'],
-                'sequence' => (int)$index['Seq_in_index'],
-                'collation' => $index['Collation']
-            ];
         }
         
         return array_values($grouped);
@@ -450,7 +458,7 @@ class DatabaseTools
         
         // Retourne seulement les informations essentielles pour économiser les tokens
         return [
-            'name' => $table
+            'table_name' => $table
         ];
     }
 }
