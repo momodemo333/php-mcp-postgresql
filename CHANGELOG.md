@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-09-01
+
+### 🐛 Fixed
+- **Critical DDL Configuration Bug** - Fixed permissions DDL not working despite configuration (Mirror of php-mcp-mysql Issue #3)
+  - `ALLOW_DDL_OPERATIONS=true` now actually enables CREATE, ALTER, DROP operations
+  - `ALLOW_ALL_OPERATIONS=true` correctly overrides `BLOCK_DANGEROUS_KEYWORDS`
+  - Missing configuration variables `ALLOW_DDL_OPERATIONS` and `ALLOW_ALL_OPERATIONS` added to `PostgreSqlServer.php`
+  - Fixed security service logic where `ALLOW_ALL_OPERATIONS` didn't properly override dangerous keyword blocking
+- ✅ **Resolution** - No more "Mot-clé non autorisé détecté: CREATE/ALTER/DROP" errors when properly configured
+
+### 🧪 Added
+- **Comprehensive DDL Test Suite** - Added `DDLPermissionsTest.php` with PostgreSQL-specific test cases
+  - Tests for CREATE, ALTER, DROP operations with proper permissions
+  - Tests for PostgreSQL-specific dangerous keywords (COPY, VACUUM, ANALYZE, CLUSTER, REINDEX)
+  - Validation of ALLOW_ALL_OPERATIONS override behavior
+  - Word boundary tests to prevent false positives
+
+### 📊 Enhanced
+- **Server Capabilities** - Updated `/server/capabilities` endpoint to show DDL and ALL operation status
+- **Documentation** - Updated `CLAUDE.md` with detailed bug fix information and PostgreSQL-specific features
+
+### Technical Details
+- **Root Causes Fixed**:
+  1. Configuration loading incomplete - DDL permission variables not loaded from environment
+  2. Logic bug - ALLOW_ALL_OPERATIONS didn't override BLOCK_DANGEROUS_KEYWORDS properly
+- **PostgreSQL-Specific Keywords**: GRANT, REVOKE, COPY, VACUUM, ANALYZE, CLUSTER, REINDEX, CHECKPOINT, SET ROLE, SET SESSION AUTHORIZATION
+- **Commits**: [e2dfebd](https://github.com/momodemo333/php-mcp-postgresql/commit/e2dfebd)
+
+### Migration
+No action required for existing users. If you had `ALLOW_DDL_OPERATIONS=true` configured, it will now work correctly!
+
 ## [1.0.1] - 2025-08-12
 
 ### 🐛 Fixed
