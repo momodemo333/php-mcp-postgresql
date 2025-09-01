@@ -117,7 +117,7 @@ class SecurityService
         }
         
         // Vérification des mots-clés vraiment dangereux (toujours bloqués sauf si ALLOW_ALL_OPERATIONS=true)
-        if ($this->getBoolConfig('BLOCK_DANGEROUS_KEYWORDS', true)) {
+        if ($this->getBoolConfig('BLOCK_DANGEROUS_KEYWORDS', true) && !$this->getBoolConfig('ALLOW_ALL_OPERATIONS', false)) {
             foreach ($this->dangerousKeywords as $keyword) {
                 // Pour les mots composés comme "INTO OUTFILE", on garde strpos
                 // Pour les mots simples, on utilise les word boundaries

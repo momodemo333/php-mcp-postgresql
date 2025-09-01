@@ -96,6 +96,9 @@ class PostgreSqlServer
                             'INSERT' => $this->getBoolConfig('ALLOW_INSERT_OPERATION'),
                             'UPDATE' => $this->getBoolConfig('ALLOW_UPDATE_OPERATION'),
                             'DELETE' => $this->getBoolConfig('ALLOW_DELETE_OPERATION'),
+                            'TRUNCATE' => $this->getBoolConfig('ALLOW_TRUNCATE_OPERATION'),
+                            'DDL' => $this->getBoolConfig('ALLOW_DDL_OPERATIONS'),
+                            'ALL' => $this->getBoolConfig('ALLOW_ALL_OPERATIONS'),
                         ],
                         'security_features' => [
                             'query_validation' => true,
@@ -168,6 +171,8 @@ class PostgreSqlServer
             'ALLOW_UPDATE_OPERATION' => getenv('ALLOW_UPDATE_OPERATION') ?: ($_ENV['ALLOW_UPDATE_OPERATION'] ?? 'false'),
             'ALLOW_DELETE_OPERATION' => getenv('ALLOW_DELETE_OPERATION') ?: ($_ENV['ALLOW_DELETE_OPERATION'] ?? 'false'),
             'ALLOW_TRUNCATE_OPERATION' => getenv('ALLOW_TRUNCATE_OPERATION') ?: ($_ENV['ALLOW_TRUNCATE_OPERATION'] ?? 'false'),
+            'ALLOW_DDL_OPERATIONS' => getenv('ALLOW_DDL_OPERATIONS') ?: ($_ENV['ALLOW_DDL_OPERATIONS'] ?? 'false'),
+            'ALLOW_ALL_OPERATIONS' => getenv('ALLOW_ALL_OPERATIONS') ?: ($_ENV['ALLOW_ALL_OPERATIONS'] ?? 'false'),
             
             'QUERY_TIMEOUT' => (int)(getenv('QUERY_TIMEOUT') ?: ($_ENV['QUERY_TIMEOUT'] ?? 30)),
             'MAX_RESULTS' => (int)(getenv('MAX_RESULTS') ?: ($_ENV['MAX_RESULTS'] ?? 1000)),
