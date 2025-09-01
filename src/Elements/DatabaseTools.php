@@ -62,7 +62,8 @@ class DatabaseTools
             $this->logger->error('Erreur lors du listage des bases', ['error' => $e->getMessage()]);
             throw new PostgreSqlMcpException('Impossible de lister les bases de données: ' . $e->getMessage());
         } finally {
-            $this->connectionService->releaseConnection($pdo);
+            // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+            $this->connectionService->closeConnection($pdo);
         }
     }
 
@@ -150,7 +151,8 @@ class DatabaseTools
             ]);
             throw new PostgreSqlMcpException('Impossible de lister les tables: ' . $e->getMessage());
         } finally {
-            $this->connectionService->releaseConnection($pdo);
+            // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+            $this->connectionService->closeConnection($pdo);
         }
     }
 
@@ -259,7 +261,8 @@ class DatabaseTools
                 ]);
                 throw new PostgreSqlMcpException('Impossible de décrire la table: ' . $e->getMessage());
             } finally {
-                $this->connectionService->releaseConnection($pdo);
+                // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+            $this->connectionService->closeConnection($pdo);
             }
         });
     }
@@ -329,7 +332,8 @@ class DatabaseTools
             ]);
             throw new PostgreSqlMcpException('Impossible de lister les noms de tables: ' . $e->getMessage());
         } finally {
-            $this->connectionService->releaseConnection($pdo);
+            // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+            $this->connectionService->closeConnection($pdo);
         }
     }
 
@@ -357,7 +361,8 @@ class DatabaseTools
                 $statusStmt = $pdo->query($statsQuery);
                 $statusData = $statusStmt->fetch();
                 
-                $this->connectionService->releaseConnection($pdo);
+                // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+            $this->connectionService->closeConnection($pdo);
                 
                 $result = array_merge($serverInfo, [
                     'postgresql_connections' => (int)($statusData['connections'] ?? 0),

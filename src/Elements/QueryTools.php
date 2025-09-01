@@ -107,7 +107,8 @@ class QueryTools
                 ]);
                 throw new QueryException('Erreur lors de l\'exécution de la requête: ' . $e->getMessage());
             } finally {
-                $this->connectionService->releaseConnection($pdo);
+                // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+                $this->connectionService->closeConnection($pdo);
             }
         });
     }
@@ -180,7 +181,8 @@ class QueryTools
                 ]);
                 throw new QueryException('Erreur lors de l\'insertion: ' . $e->getMessage());
             } finally {
-                $this->connectionService->releaseConnection($pdo);
+                // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+                $this->connectionService->closeConnection($pdo);
             }
         });
     }
@@ -279,7 +281,8 @@ class QueryTools
                 ]);
                 throw new QueryException('Erreur lors de la mise à jour: ' . $e->getMessage());
             } finally {
-                $this->connectionService->releaseConnection($pdo);
+                // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+                $this->connectionService->closeConnection($pdo);
             }
         });
     }
@@ -363,7 +366,8 @@ class QueryTools
                 ]);
                 throw new QueryException('Erreur lors de la suppression: ' . $e->getMessage());
             } finally {
-                $this->connectionService->releaseConnection($pdo);
+                // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+                $this->connectionService->closeConnection($pdo);
             }
         });
     }
@@ -441,7 +445,8 @@ class QueryTools
                 ]);
                 throw new QueryException('Erreur lors de l\'exécution: ' . $e->getMessage());
             } finally {
-                $this->connectionService->releaseConnection($pdo);
+                // Solution 1: Fermer systématiquement la connexion pour éviter les timeouts PostgreSQL
+                $this->connectionService->closeConnection($pdo);
             }
         });
     }
