@@ -1,0 +1,40 @@
+{
+    "mcpServers": {
+        "postgresql-mcp": {
+            "type": "stdio",
+            "command": "php",
+            "args": [
+                "/absolute/path/to/php-mcp-postgresql/bin/server.php"
+            ],
+            "env": {
+                "// === CONNEXION PostgreSQL (OBLIGATOIRE) ===": "",
+                "PGSQL_HOST": "127.0.0.1",
+                "PGSQL_PORT": "5432",
+                "PGSQL_USER": "your_username",
+                "PGSQL_PASS": "your_password",
+                "PGSQL_DB": "",
+
+                "// === PERMISSIONS RECOMMANDÉES ===": "",
+                "ALLOW_INSERT_OPERATION": "false",
+                "ALLOW_UPDATE_OPERATION": "false",
+                "ALLOW_DELETE_OPERATION": "false",
+                "ALLOW_TRUNCATE_OPERATION": "false",
+                "ALLOW_DDL_OPERATIONS": "false",
+                "ALLOW_ALL_OPERATIONS": "false",
+
+                "// === OPTIMISATION ANTI-TIMEOUT ===": "",
+                "QUERY_TIMEOUT": "60",
+                "MAX_RESULTS": "1000",
+                "CONNECTION_POOL_SIZE": "3",
+                "ENABLE_PREPARED_STATEMENTS": "true",
+
+                "// === SÉCURITÉ ===": "",
+                "ALLOWED_SCHEMAS": "",
+                "BLOCK_DANGEROUS_KEYWORDS": "true",
+
+                "// === DEBUG ===": "",
+                "LOG_LEVEL": "INFO"
+            }
+        }
+    }
+}

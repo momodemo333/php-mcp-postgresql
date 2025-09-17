@@ -115,6 +115,23 @@ try {
     
     $logger->info('Serveur prêt, écoute via stdio...');
     
+    // Démarrage du serveur avec gestion des erreurs et reconnexion
+    register_shutdown_function(function() use ($logger) {
+        $logger->info('Serveur MCP en cours d\'arrêt');
+    });
+
+    // Gestion des signaux pour un arrêt propre
+    if (function_exists('pcntl_signal')) {
+        pcntl_signal(SIGTERM, function() use ($logger) {
+            $logger->info('Signal SIGTERM reçu, arrêt du serveur');
+            exit(0);
+        });
+        pcntl_signal(SIGINT, function() use ($logger) {
+            $logger->info('Signal SIGINT reçu, arrêt du serveur');
+            exit(0);
+        });
+    }
+
     // Démarrage du serveur (boucle bloquante)
     $server->listen($transport);
     
